@@ -17,6 +17,10 @@ class BasicCommands(commands.Cog):
 
     @commands.command()
     async def history(self, ctx, member=None, limit=None):
+
+        if limit is not None:
+            limit = int(limit)
+
         if member is None: member = ctx.author.mention
         counter = 0
         async for message in ctx.channel.history(limit=limit):
@@ -26,11 +30,13 @@ class BasicCommands(commands.Cog):
     
     @commands.command()
     async def stats(self, ctx, member=None, limit=None):
+
         if member is None:
              member = ctx.author
         else:
             user = int(member.strip('<!@>'))
             member = await ctx.guild.fetch_member(user)
+
         embed = discord.Embed(title = f"Messege statistics for {member}",
                         color= member.color,
                         timestamp=datetime.utcnow())
@@ -38,6 +44,7 @@ class BasicCommands(commands.Cog):
         #await ctx.send(f"{member.mention} posted: ")
         mentioned = 0
         total_messages = 0
+
         async with ctx.message.channel.typing():
 
             for channel in ctx.guild.channels:
@@ -64,12 +71,15 @@ class BasicCommands(commands.Cog):
     @commands.command(hidden=True)
     async def delete(self, ctx, member=None, limit=None):
         
+        if limit is not None:
+            limit = int(limit)
+
         async with ctx.message.channel.typing():
 
             if member is None: member = ctx.author.mention
             count, messages = 0, []
 
-            async for message in ctx.channel.history(limit=int(limit)):
+            async for message in ctx.channel.history(limit=limit):
                 if message.author.mention == member.replace('!', ''):
                     messages.append(message)
                     count+=1
@@ -80,8 +90,12 @@ class BasicCommands(commands.Cog):
 
     @commands.command(hidden=True)
     async def clean(self, ctx, limit=None):
+        
+        if limit is not None:
+            limit = int(limit)
+
         async with ctx.message.channel.typing():
-            deleted = await ctx.channel.purge(limit=int(limit))
+            deleted = await ctx.channel.purge(limit=limit)
             await ctx.channel.send(f'Deleted {len(deleted)} message(s)')
         
 

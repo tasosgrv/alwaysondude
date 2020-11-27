@@ -1,23 +1,6 @@
-27 Nov 20 23:18:19:discord.client:logging in using static token
-27 Nov 20 23:18:20:discord.gateway:Shard ID None has sent the IDENTIFY payload.
-27 Nov 20 23:18:20:discord.gateway:Shard ID None has connected to Gateway: ["gateway-prd-main-rsnz",{"micros":67615,"calls":["discord-sessions-prd-2-110",{"micros":66112,"calls":["start_session",{"micros":38405,"calls":["api-prd-main-mgt6",{"micros":35602,"calls":["get_user",{"micros":2158},"add_authorized_ip",{"micros":2189},"get_guilds",{"micros":2856},"coros_wait",{"micros":0}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":12896,"calls":[]}]}]}] (Session ID: 6582a9f3b1c133ddcf8d0543a18c2e8e).
-27 Nov 20 23:19:19:root:commands: w0ch4#1238: w0ch4: <@!420254454068281365> ela
-27 Nov 20 23:20:28:root:bot_testing: w0ch4#1238: w0ch4: .join
-27 Nov 20 23:20:29:discord.voice_client:Connecting to voice...
-27 Nov 20 23:20:29:discord.voice_client:Starting voice handshake... (connection attempt 1)
-27 Nov 20 23:20:29:discord.voice_client:Voice handshake complete. Endpoint found eu-central721.discord.media
-27 Nov 20 23:20:30:discord.gateway:selected the voice protocol for use (xsalsa20_poly1305_lite)
-27 Nov 20 23:20:30:discord.gateway:received secret key for voice connection
-27 Nov 20 23:20:30:root:bot_testing: AlwaysOnDude#2603: AlwaysOnDude: Connecte to **☢BURNERS Voice**
-27 Nov 20 23:20:36:root:bot_testing: w0ch4#1238: w0ch4: .leave
-27 Nov 20 23:20:36:discord.voice_client:The voice handshake is being terminated for Channel ID 420117561762643988 (Guild ID 420059002756399104)
-27 Nov 20 23:20:36:discord.voice_client:Disconnecting from voice normally, close code 1000.
-27 Nov 20 23:20:37:root:commands: Immortalius#4009: Immortalius: exeis douleia?
-27 Nov 20 23:20:37:root:bot_testing: AlwaysOnDude#2603: AlwaysOnDude: **Disconnected from the voice channel**
-27 Nov 20 23:20:43:root:bot_testing: w0ch4#1238: w0ch4: ,stats
-27 Nov 20 23:20:54:root:bot_testing: w0ch4#1238: w0ch4: .stats
-27 Nov 20 23:21:05:root:bot_testing: AlwaysOnDude#2603: AlwaysOnDude: 
-27 Nov 20 23:21:37:discord.client:Cleaning up tasks.
-27 Nov 20 23:21:37:discord.client:Cleaning up after 1 tasks.
-27 Nov 20 23:21:37:discord.client:All tasks finished cancelling.
-27 Nov 20 23:21:37:discord.client:Closing the event loop.
+28 Nov 20 00:02:02:discord.client:logging in using static token
+28 Nov 20 00:02:03:discord.gateway:Shard ID None has sent the IDENTIFY payload.
+28 Nov 20 00:02:04:discord.gateway:Shard ID None has connected to Gateway: ["gateway-prd-main-7hrx",{"micros":71235,"calls":["discord-sessions-prd-2-49",{"micros":64650,"calls":["start_session",{"micros":55580,"calls":["api-prd-main-22mn",{"micros":52560,"calls":["get_user",{"micros":2528},"add_authorized_ip",{"micros":1562},"get_guilds",{"micros":3091},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":5558,"calls":[]}]}]}] (Session ID: 11937527a47667bcc23229be896d0c21).
+28 Nov 20 00:02:26:root:commands: Immortalius#4009: Immortalius: https://www.skroutz.gr/s/17625619/Arctic-Freezer-34-eSports-Duo-White.html
+28 Nov 20 00:02:47:root:bot_testing: w0ch4#1238: w0ch4: .history
+28 Nov 20 00:02:47:root:bot_testing: AlwaysOnDude#2603: AlwaysOnDude: <@420058166651256842> posted 5 messages in this channel <#780381087566135327>
