@@ -18,20 +18,22 @@ class VoiceCommands(commands.Cog):
                 channel_id = ctx.author.voice.channel.id;
                 channel = await self.client.fetch_channel(channel_id)
                 self.voice = await channel.connect()
-                await ctx.send(f"Connecte to **{channel.name}**")
+                await ctx.send(f"Connected to **{channel.name}**")
 
 
     @commands.command()
     async def leave(self, ctx):
         async with ctx.message.channel.typing():
-            requestor_guild = ctx.author.guild
-            for voice_client in self.client.voice_clients:
-                if voice_client.guild == requestor_guild:
-                    await voice_client.disconnect()
-                    voice_client.cleanup()
-                    await ctx.send(f"**Disconnected from the voice channel**")
-
-
+            if not self.client.voice_clients:
+                await ctx.send(f":x: **I am not connected to a channel**")
+            else:
+                requestor_guild = ctx.author.guild
+                for voice_client in self.client.voice_clients:
+                    if voice_client.guild == requestor_guild:
+                        await voice_client.disconnect()
+                        voice_client.cleanup()
+                        await ctx.send(f"**Disconnected from the voice channel**")
+    
 
 def setup(client):
     client.add_cog(VoiceCommands(client))

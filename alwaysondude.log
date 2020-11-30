@@ -1,6 +1,37 @@
-28 Nov 20 00:02:02:discord.client:logging in using static token
-28 Nov 20 00:02:03:discord.gateway:Shard ID None has sent the IDENTIFY payload.
-28 Nov 20 00:02:04:discord.gateway:Shard ID None has connected to Gateway: ["gateway-prd-main-7hrx",{"micros":71235,"calls":["discord-sessions-prd-2-49",{"micros":64650,"calls":["start_session",{"micros":55580,"calls":["api-prd-main-22mn",{"micros":52560,"calls":["get_user",{"micros":2528},"add_authorized_ip",{"micros":1562},"get_guilds",{"micros":3091},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":5558,"calls":[]}]}]}] (Session ID: 11937527a47667bcc23229be896d0c21).
-28 Nov 20 00:02:26:root:commands: Immortalius#4009: Immortalius: https://www.skroutz.gr/s/17625619/Arctic-Freezer-34-eSports-Duo-White.html
-28 Nov 20 00:02:47:root:bot_testing: w0ch4#1238: w0ch4: .history
-28 Nov 20 00:02:47:root:bot_testing: AlwaysOnDude#2603: AlwaysOnDude: <@420058166651256842> posted 5 messages in this channel <#780381087566135327>
+01 Dec 20 00:28:15:discord.client:logging in using static token
+01 Dec 20 00:28:16:discord.gateway:Shard ID None has sent the IDENTIFY payload.
+01 Dec 20 00:28:16:discord.gateway:Shard ID None has connected to Gateway: ["gateway-prd-main-651w",{"micros":80058,"calls":["discord-sessions-prd-2-17",{"micros":78226,"calls":["start_session",{"micros":41614,"calls":["api-prd-main-jkr3",{"micros":38548,"calls":["get_user",{"micros":2653},"add_authorized_ip",{"micros":1745},"get_guilds",{"micros":7495},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":24405,"calls":[]}]}]}] (Session ID: 66dcf707eb685e6276c91dbe1ac02487).
+01 Dec 20 00:28:23:root:bot_testing: w0ch4#1238: w0ch4: .join
+01 Dec 20 00:28:24:discord.voice_client:Connecting to voice...
+01 Dec 20 00:28:24:discord.voice_client:Starting voice handshake... (connection attempt 1)
+01 Dec 20 00:28:24:discord.voice_client:Voice handshake complete. Endpoint found eu-central383.discord.media
+01 Dec 20 00:28:25:discord.gateway:selected the voice protocol for use (xsalsa20_poly1305_lite)
+01 Dec 20 00:28:25:discord.gateway:received secret key for voice connection
+01 Dec 20 00:28:26:root:bot_testing: AlwaysOnDude#2603: AlwaysOnDude: Connected to **☢BURNERS Voice**
+01 Dec 20 00:28:36:root:bot_testing: w0ch4#1238: w0ch4: .leave
+01 Dec 20 00:28:36:discord.voice_client:The voice handshake is being terminated for Channel ID 420117561762643988 (Guild ID 420059002756399104)
+01 Dec 20 00:28:36:discord.voice_client:Disconnecting from voice normally, close code 1000.
+01 Dec 20 00:28:36:root:bot_testing: AlwaysOnDude#2603: AlwaysOnDude: **Disconnected from the voice channel**
+01 Dec 20 00:28:52:root:bot_testing: w0ch4#1238: w0ch4: .aot
+01 Dec 20 00:28:53:discord.voice_client:Connecting to voice...
+01 Dec 20 00:28:53:discord.voice_client:Starting voice handshake... (connection attempt 1)
+01 Dec 20 00:28:53:discord.voice_client:Voice handshake complete. Endpoint found eu-central383.discord.media
+01 Dec 20 00:28:54:discord.gateway:selected the voice protocol for use (xsalsa20_poly1305_lite)
+01 Dec 20 00:28:54:discord.gateway:received secret key for voice connection
+01 Dec 20 00:28:54:root:bot_testing: AlwaysOnDude#2603: AlwaysOnDude: Connected to **☢BURNERS Voice**
+01 Dec 20 00:29:21:discord.player:Preparing to terminate ffmpeg process 160981.
+01 Dec 20 00:29:21:discord.player:ffmpeg process 160981 successfully terminated with return code of 0.
+01 Dec 20 00:29:29:root:bot_testing: w0ch4#1238: w0ch4: .aot
+01 Dec 20 00:29:57:discord.player:Preparing to terminate ffmpeg process 161215.
+01 Dec 20 00:29:57:discord.player:ffmpeg process 161215 successfully terminated with return code of 0.
+01 Dec 20 00:30:17:root:bot_testing: w0ch4#1238: w0ch4: .leave
+01 Dec 20 00:30:18:discord.voice_client:The voice handshake is being terminated for Channel ID 420117561762643988 (Guild ID 420059002756399104)
+01 Dec 20 00:30:18:discord.voice_client:Disconnecting from voice normally, close code 1000.
+01 Dec 20 00:30:18:root:bot_testing: AlwaysOnDude#2603: AlwaysOnDude: **Disconnected from the voice channel**
+01 Dec 20 00:35:33:root:commands: Stevepredator#9223: Stevepredator: !play november rain
+01 Dec 20 00:35:33:root:commands: Rythm#3722: Rythm: <:youtube:335112740957978625> **Searching** 🔎 `november rain`
+01 Dec 20 00:35:34:root:commands: Rythm#3722: Rythm: 
+01 Dec 20 00:38:03:discord.client:Cleaning up tasks.
+01 Dec 20 00:38:03:discord.client:Cleaning up after 1 tasks.
+01 Dec 20 00:38:03:discord.client:All tasks finished cancelling.
+01 Dec 20 00:38:03:discord.client:Closing the event loop.

@@ -19,13 +19,25 @@ class BasicCommands(commands.Cog):
     async def history(self, ctx, member=None, limit=None):
 
         if limit is not None:
-            limit = int(limit)
+            limit = int(limit)+1
 
-        if member is None: member = ctx.author.mention
-        counter = 0
-        async for message in ctx.channel.history(limit=limit):
-                counter +=1
-        await ctx.send(f"{member} posted {counter} messages in this channel {ctx.channel.mention}")
+        async with ctx.message.channel.typing():
+            if member is None: 
+                counter = 0
+                async for message in ctx.channel.history(limit=limit):
+                        counter +=1
+                await ctx.send(f"{counter} message(s) in this channel {ctx.channel.mention}")
+            else:
+
+                user = int(member.strip('<!@>'))
+                member = await ctx.guild.fetch_member(user)
+
+                counter = 0
+                async for message in ctx.channel.history(limit=limit):
+                    if message.author == member:
+                        counter +=1
+                await ctx.send(f"{member.mention} sent {counter} message(s) in this channel {ctx.channel.mention}")
+
 
     
     @commands.command()
@@ -60,23 +72,26 @@ class BasicCommands(commands.Cog):
                             chan_messages_c+=1
                             total_messages+=1
             
-                    embed.add_field(name=f"{channel.name}", value=f"{str(chan_messages_c)} message(s)", inline=False)
+                    embed.add_field(name=f"{channel.name}", value=f"{str(chan_messages_c)} message(s)", inline=True)
                     #await ctx.send(f"{str(count)} messages in {channel.mention}")
-            embed.add_field(name="In Summury", value= f"{str(total_messages)} total message(s) in the server \n{str(mentioned)} times your name mentioned", inline=False)
+            embed.add_field(name="In Summury", value= f"{str(total_messages)} total message(s) in the server \n{str(mentioned)} times your name mentioned", inline=True)
+            embed.add_field(name="Joined at", value= f"{member.joined_at.strftime('%d/%m/%Y %H:%M')}", inline=False)
             embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
             #await ctx.send(f"{str(mentioned)} times your name mentioned")
             await ctx.send(embed=embed)
     
                         
     @commands.command(hidden=True)
-    async def delete(self, ctx, member=None, limit=None):
+    async def delete(self, ctx, member, limit=None):
         
         if limit is not None:
-            limit = int(limit)
+            limit = int(limit)+1
 
         async with ctx.message.channel.typing():
 
-            if member is None: member = ctx.author.mention
+            if member is None:
+                await ctx.channel.send(f"You have to specify a memeber after the commands")
+
             count, messages = 0, []
 
             async for message in ctx.channel.history(limit=limit):
@@ -92,7 +107,7 @@ class BasicCommands(commands.Cog):
     async def clean(self, ctx, limit=None):
         
         if limit is not None:
-            limit = int(limit)
+            limit = int(limit)+1
 
         async with ctx.message.channel.typing():
             deleted = await ctx.channel.purge(limit=limit)
