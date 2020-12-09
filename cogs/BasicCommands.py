@@ -105,15 +105,37 @@ class BasicCommands(commands.Cog):
 
     @commands.command(hidden=True)
     async def clean(self, ctx, limit=None):
-        
+
+        self.request = ctx.message
+        if limit is None:
+            query = await ctx.channel.send(f"**:warning: Are you sure you want to delete all messages of this channel?**")
+            await query.add_reaction("✅")
+            await query.add_reaction("❌")
+        else:
+            await self.cleanall(ctx.channel, limit)
+
+       
+    async def cleanall(self, channel, limit):
         if limit is not None:
-            limit = int(limit)+1
+            limit = int(limit) + 1
 
-        async with ctx.message.channel.typing():
-            deleted = await ctx.channel.purge(limit=limit)
-            await ctx.channel.send(f'Deleted {len(deleted)} message(s)')
+        async with channel.typing():
+            deleted = await channel.purge(limit=limit)
+            await channel.send(f"Deleted {len(deleted)} message(s)")
+
+
+    @commands.Cog.listener() 
+    async def on_reaction_add(self, reaction, user):
         
-
+        if self.request.author == user:
+                
+            channel = reaction.message.channel 
+            if reaction.emoji=="✅" and int(reaction.count)>1:
+                await self.cleanall(channel, limit=None)
+            if reaction.emoji=="❌" and int(reaction.count)>1:
+                await self.cleanall(channel, limit=1)
+        
+  
 
 def setup(client):
     client.add_cog(BasicCommands(client))

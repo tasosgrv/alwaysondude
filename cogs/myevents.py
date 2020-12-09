@@ -4,7 +4,7 @@ from datetime import datetime
 from discord.ext import commands
 
 
-logging.basicConfig(filename='alwaysondude.log', level=logging.INFO, filemode='w', format='%(asctime)s:%(name)s:%(message)s', datefmt='%d %b %y %H:%M:%S')
+logging.basicConfig(filename='Alwaysondude.log', level=logging.INFO, filemode='w', format='%(asctime)s:%(name)s:%(message)s', datefmt='%d %b %y %H:%M:%S')
 
 class MyEvents(commands.Cog):
     def __init__(self, client):
