@@ -105,7 +105,9 @@ class BasicCommands(commands.Cog):
 
     @commands.command(hidden=True)
     async def clean(self, ctx, limit=None):
-
+        if ctx.author.permissions_in(ctx.channel).manage_messages is False:
+            await ctx.channel.send(f"**:x: You don't have the premission to run this command**")
+            return
         self.request = ctx.message
         if limit is None:
             query = await ctx.channel.send(f"**:warning: Are you sure you want to delete all messages of this channel?**")
