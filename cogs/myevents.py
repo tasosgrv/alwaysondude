@@ -43,6 +43,10 @@ class MyEvents(commands.Cog):
         if  "fuck" in message.content.lower():
             await message.channel.send(f"Go to hell {message.author.mention}")
 
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            await ctx.send(f"**:x: Command '{str(ctx.message.content).strip('.')}' is not found**")
 
 
 
