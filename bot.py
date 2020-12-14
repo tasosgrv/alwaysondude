@@ -6,10 +6,10 @@ from discord.ext import commands
 
 token = open("token.txt", "r").read()  # I've opted to just save my token to a text file. 
 
-#intents = discord.Intents.all()
+intents = discord.Intents.all()
 #client = discord.Client(intents=intents)
 
-client = commands.Bot(command_prefix='.')
+client = commands.Bot(command_prefix='.', intents=intents, chunk_guilds_at_startup=True)
 
 
 for filename in os.listdir('./cogs'):

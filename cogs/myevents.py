@@ -1,5 +1,6 @@
 import discord
 import logging
+import pprint as debug
 from datetime import datetime
 from discord.ext import commands
 
@@ -15,13 +16,16 @@ class MyEvents(commands.Cog):
         print(f'We have logged in as {self.client.user}')  # notification of login.
 
         await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='my master to learn new things'))
-        '''
+    
         guild_id = self.client.guilds[0].id
         await self.client.fetch_guild(guild_id)
         
-        async for guild in client.fetch_guilds(limit=150):
-            print(guild.name)
-        
+        for guild in self.client.guilds:
+            debug.pprint(guild)
+            for member in guild.members:
+                debug.pprint(member)
+                print("-"*30)
+        '''
         for guild in self.client.guilds:
             for channel in guild.voice_channels:
                 if channel.position == 3: 
