@@ -14,9 +14,9 @@ class Database:
     def connect(self):
         '''
             Sets up the connection with the database\n
-            Parameters:\n
-            Return:\n
-                \tAn instance of class connetion from psycopg2
+            Returns:
+            -----------
+                \t psycopg2.connection
         '''
         self.connection = psycopg2.connect(dbname=Database._dbparams['DB_NAME'], 
                                   user=Database._dbparams['DB_USER'],
@@ -29,8 +29,12 @@ class Database:
     def createTable(self, table):
         '''
             Creates a new table with a given name\n
-            Parameters: table: String\n
-            Return: Boolean
+            Parameters:
+            -----------
+                \ttable: String\n
+            Return:
+            ----------- 
+                \tBoolean
         '''
         if not self.connection!=0:
             return None
@@ -59,8 +63,12 @@ class Database:
     def dropTable(self, table):
         '''
             Deletes a table with a given name if exists\n
-            Parameters: table: String\n
-            Return: Boolean
+            Parameters: 
+            -----------
+            table: String\n
+            Return: 
+            -----------
+            Boolean
         '''
         if not self.connection!=0:
             return None
@@ -79,9 +87,11 @@ class Database:
         '''
             Returns all the elements of specific table\n
             Parameters:\n
-                \tString: int\n
+            -----------
+                \ttable: String\n
             Return:\n
-                \tA List o tuples or None 
+            -----------
+                \tA List of tuples or None 
         '''
         if not self.connection!=0:
             return None
@@ -99,10 +109,12 @@ class Database:
     def insert(self, table, *values):
         '''
             Gets a list of values and inserts them into a specified table\n
-            Parameters:\n
+            Parameters:
+            -----------
                 \ttable: String\n
                 \tvalues: List\n
-            Return:\n
+            Return:
+            -----------
                 \tBoolean
         '''
         if not self.connection:
@@ -127,9 +139,11 @@ class Database:
     def getPoints(self, table, member_id):
         '''
             Returns the points of a certain member\n
-            Parameters:\n
+            Parameters:
+            -----------
                 \tmember_id: int\n
-            Return:\n
+            Return:
+            -----------
                 \tint or None 
         '''
         if not self.connection!=0:
@@ -148,10 +162,12 @@ class Database:
     def setPoints(self, table, member_id, points):
         '''
             Sets the points of a certain member into the database\n
-            Parameters:\n
+            Parameters:
+            -----------
                 \ttable: String\n
                 \tmember_id: int\n
-            Return:\n
+            Returns:
+            -----------
                 \tBoolean
         '''
         if not self.connection!=0:
@@ -174,10 +190,12 @@ class Database:
     def delete(self, table, id):
         '''
             Deletes a row from a specified table\n
-            Parameters:\n
+            Parameters:
+            -----------
                 \ttable: String\n
                 \tid: int\n
-            Return:\n
+            Return:
+            -----------
                 \tBoolean
         '''
         if not self.connection:
@@ -194,7 +212,8 @@ class Database:
     def close_connection(self):
         '''
         Closes the connection with the database\n
-        Return:\n
+        Return:
+        -----------
             \tBoolean
         '''
         if self.connection.closed != 0: #IF CONNECTION CLOSED
