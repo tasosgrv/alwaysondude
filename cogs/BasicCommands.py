@@ -129,13 +129,14 @@ class BasicCommands(commands.Cog):
     @commands.Cog.listener() 
     async def on_reaction_add(self, reaction, user):
         
-        if self.request.author == user:
-                
-            channel = reaction.message.channel 
-            if reaction.emoji=="✅" and int(reaction.count)>1:
-                await self.cleanall(channel, limit=None)
-            if reaction.emoji=="❌" and int(reaction.count)>1:
-                await self.cleanall(channel, limit=1)
+        if hasattr(BasicCommands, 'request'):  # an to self.request exei oristei
+            if self.request.author == user:
+                    
+                channel = reaction.message.channel 
+                if reaction.emoji=="✅" and int(reaction.count)>1:
+                    await self.cleanall(channel, limit=None)
+                if reaction.emoji=="❌" and int(reaction.count)>1:
+                    await self.cleanall(channel, limit=1)
         
   
 
