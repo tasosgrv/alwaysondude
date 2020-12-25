@@ -51,6 +51,18 @@ class Economy(commands.Cog):
 
             await ctx.channel.send(f":bank:: :white_check_mark: {ctx.author.mention} gave **{payment}** points:moneybag: to {member.mention}")
 
+    @commands.command()
+    async def top5(self, ctx, member, points):
+        """
+        SELECT name, points FROM "☢Ƀu₹₦€₹$☢"
+        ORDER BY points DESC LIMIT 5
+        """
+        pass
+
+    #TODO 1 Random pointS drop
+    #TODO 2 Rain - random mass donation from a user .rain
+    #TODO 3 Daily Point reward
+    #  
 
 
             

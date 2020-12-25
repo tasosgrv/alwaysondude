@@ -84,8 +84,10 @@ class MyEvents(commands.Cog):
             gained_points = math.floor(len(message.content)*0.12)
             points += gained_points
             self.db.setPoints(message.guild.name, message.author.id, points)
-            print(f"{message.author} gained {gained_points} points")
             self.db.close_connection()
+            if gained_points>0:
+                print(f"{message.guild.name}: {message.author} gained {gained_points} points")
+                logging.info(f"{message.guild.name}: {message.author} gained {gained_points} points")
 
 
         if "hello" in message.content.lower():
@@ -102,8 +104,9 @@ class MyEvents(commands.Cog):
         points = self.db.getPoints(user.guild.name, user.id)
         gained_points = 1
         self.db.setPoints(user.guild.name, user.id, points)
-        print(f"{user} gained {gained_points} points")
         self.db.close_connection()
+        print(f"{user.guild.name}: {user} gained {gained_points} points")
+        logging.info(f"{user.guild.name}: {user} gained {gained_points} points")
 
     '''
     @commands.Cog.listener()
