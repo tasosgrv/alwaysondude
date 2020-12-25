@@ -75,16 +75,17 @@ class MyEvents(commands.Cog):
         # check out more by print(dir(message)) for example.
         logging.info(f"{message.guild.name}: {message.channel}: {message.author}: {message.author.name}: {message.content}")
         print(f"{message.channel}: {message.author}: {message.author.name}: {message.content}")
-        if message.author == self.client.user:
+        if message.author.bot :
             return
         
-        self.db.connect()
-        points = self.db.getPoints(message.guild.name, message.author.id)
-        gained_points = math.floor(len(message.content)*0.2)
-        points += gained_points
-        self.db.setPoints(message.guild.name, message.author.id, points)
-        print(f"{message.author} gained {gained_points} points")
-        self.db.close_connection()
+        if not message.content.startswith('.'):
+            self.db.connect()
+            points = self.db.getPoints(message.guild.name, message.author.id)
+            gained_points = math.floor(len(message.content)*0.12)
+            points += gained_points
+            self.db.setPoints(message.guild.name, message.author.id, points)
+            print(f"{message.author} gained {gained_points} points")
+            self.db.close_connection()
 
 
         if "hello" in message.content.lower():
@@ -95,12 +96,12 @@ class MyEvents(commands.Cog):
 
     @commands.Cog.listener() 
     async def on_reaction_add(self, reaction, user):
-        if user == self.client.user:
+        if user.bot:
             return
         self.db.connect()
-        points = self.db.getPoints(message.guild.name, message.author.id)
+        points = self.db.getPoints(user.guild.name, user.id)
         gained_points = 1
-        self.db.setPoints(message.guild.name, message.author.id, points)
+        self.db.setPoints(user.guild.name, user.id, points)
         print(f"{user} gained {gained_points} points")
         self.db.close_connection()
 

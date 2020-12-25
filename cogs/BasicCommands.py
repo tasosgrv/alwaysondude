@@ -90,7 +90,7 @@ class BasicCommands(commands.Cog):
         async with ctx.message.channel.typing():
 
             if member is None:
-                await ctx.channel.send(f"You have to specify a memeber after the commands")
+                await ctx.channel.send(f"You have to specify a member after the commands")
 
             count, messages = 0, []
 

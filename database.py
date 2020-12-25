@@ -166,6 +166,7 @@ class Database:
             -----------
                 \ttable: String\n
                 \tmember_id: int\n
+                \tpoints: int
             Returns:
             -----------
                 \tBoolean
@@ -183,7 +184,7 @@ class Database:
                 self.connection.commit()
             except:
                 print("ERROR on update")
-                return None
+                return False
 
         return True
 
