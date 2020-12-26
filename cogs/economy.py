@@ -83,6 +83,7 @@ class Economy(commands.Cog):
             if isinstance(error, commands.MissingRequiredArgument):
                 await ctx.send(f":bank:: :no_entry: **An argument is missing** \nCommand syntax: .give [member] [points]")
 
+    
     @commands.command()
     async def rain(self, ctx, donation, number_of_members):
         try:    
@@ -108,8 +109,10 @@ class Economy(commands.Cog):
             await ctx.channel.send(f":bank:: :x: **Τhere are not so many members in this server**")
             return
 
-        winners = []
         donation_share = math.floor(donation/number_of_members) #calculate the amount each user gets
+        
+        #pick the winners
+        winners = []
         for m in range(number_of_members):
             winners.append(random.choice(members))
 
@@ -117,6 +120,7 @@ class Economy(commands.Cog):
                         color= ctx.author.color,
                         timestamp=datetime.utcnow())
         respond = ""
+
         self.db.connect()
         self.db.setPoints(ctx.guild.name, ctx.author.id, sender_amount-donation) #decrease sender's points
         for winner in winners:
@@ -125,6 +129,7 @@ class Economy(commands.Cog):
             respond += "\n"+ str(winner.mention ) + " got **" + str(donation_share) + "** points:moneybag:"
         
         self.db.close_connection()
+
         embed.add_field(name='Winners', 
                         value=respond,
                         inline=False
