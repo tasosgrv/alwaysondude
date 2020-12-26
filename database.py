@@ -176,7 +176,6 @@ class Database:
         if not table or not values:
             return False
         table = table.replace(" ", "")
-        print(values)
         query = "INSERT INTO "+table+" values("+"%s,"*(len(values)-1)+"%s) ON CONFLICT DO NOTHING"
         with self.connection.cursor() as cursor:
             try:
