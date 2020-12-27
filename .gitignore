@@ -1,7 +1,8 @@
 .vscode
+__pycache__
 cogs/__pycache__
 alwaysondude
 audio
 logs/Alwaysondude.log
 data/tables.sql
-dbparams.yaml
+data/dbparams.yaml
