@@ -7,7 +7,7 @@ from discord.ext import commands
 
 
 #loads the bot token
-with open(r'token.yaml') as file:
+with open(r'data/token.yaml') as file:
     token = yaml.load(file, Loader=yaml.FullLoader)
 
 intents = discord.Intents.all()

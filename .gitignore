@@ -2,6 +2,6 @@
 cogs/__pycache__
 alwaysondude
 audio
-Alwaysondude.log
-tables.sql
+logs/Alwaysondude.log
+data/tables.sql
 dbparams.yaml

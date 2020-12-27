@@ -8,7 +8,7 @@ class Database:
     _dbparams = {}
 
     def __init__(self):
-        with open(r'dbparams.yaml') as file:
+        with open(r'data/dbparams.yaml') as file:
             Database._dbparams = yaml.load(file, Loader=yaml.FullLoader)
 
     def connect(self):
