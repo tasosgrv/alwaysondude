@@ -29,7 +29,8 @@ class MyEvents(commands.Cog):
             for member in guild.members:
                 self.db.insert(member.guild.name , member.id, member.name, member.discriminator, member.bot, member.nick, True, 0, member.guild.id)
         self.db.close_connection()
-        print(f'Database update complete')        
+        print(f'Database update complete')   
+
 
 
     @commands.Cog.listener()
@@ -55,7 +56,7 @@ class MyEvents(commands.Cog):
         self.db.insert('guilds', guild.id, guild.name, guild.chunked, guild.member_count, guild.owner_id)
         self.db.createTable(guild.name)
         for member in guild.members:
-            self.db.insert(guild.name, member.id, member.name, member.discriminator, member.bot, member.nick, True, 0, member.guild.id)
+            self.db.insert(guild.name, member.id, member.name, member.discriminator, member.bot, member.nick, True, 10, member.guild.id)
         self.db.close_connection()
 
     @commands.Cog.listener()

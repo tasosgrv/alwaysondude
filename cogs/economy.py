@@ -14,17 +14,17 @@ class Economy(commands.Cog):
         self.reward.start()
 
     @commands.command()
-    async def points(self, ctx):
+    async def balance(self, ctx):
         async with ctx.message.channel.typing():
             self.db.connect()
             points = self.db.getPoints(ctx.guild.name, ctx.author.id)
             self.db.close_connection()
-        await ctx.send(f":bank: {ctx.author.mention} has **{points}** points:moneybag:")
+        await ctx.send(f":bank: {ctx.author.mention} has **{points}** coins:moneybag:")
 
     @commands.command()
     async def leaderboard(self, ctx):
         async with ctx.message.channel.typing():
-            embed = discord.Embed(title = f":bank: :bar_chart: Points Leaderboard for {ctx.guild.name}",
+            embed = discord.Embed(title = f":bank: :bar_chart: Coins Leaderboard for {ctx.guild.name}",
                             color= ctx.author.color,
                             timestamp=datetime.utcnow())
             self.db.connect()
@@ -46,7 +46,7 @@ class Economy(commands.Cog):
             self.db.connect()
             supply = self.db.getTotalSupply(ctx.guild.name)
             self.db.close_connection()
-        await ctx.send(f":bank:: :bar_chart: **{ctx.guild.name}**  has a total supply of **{supply}** points:moneybag:")
+        await ctx.send(f":bank:: :bar_chart: **{ctx.guild.name}**  has a total supply of **{supply}** coins:moneybag:")
 
     @commands.command()
     async def give(self, ctx, member, points):
@@ -54,10 +54,10 @@ class Economy(commands.Cog):
             try:    
                 payment = int(points)
             except ValueError:
-                await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non negative number**")
+                await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non-negative number**")
                 return
             if payment<1:
-                await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non negative number**")
+                await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non-negative number**")
                 return
             
             self.db.connect()
@@ -76,13 +76,13 @@ class Economy(commands.Cog):
             self.db.setPoints(ctx.guild.name, member.id, recipient_amount+payment) #increase recipient's points
             self.db.close_connection()
 
-            await ctx.channel.send(f":bank:: :white_check_mark: {ctx.author.mention} gave **{payment}** points:moneybag: to {member.mention}")
+            await ctx.channel.send(f":bank:: :white_check_mark: {ctx.author.mention} gave **{payment}** coins:moneybag: to {member.mention}")
 
     @give.error
     async def give_error(self, ctx, error):
         async with ctx.message.channel.typing():
             if isinstance(error, commands.MissingRequiredArgument):
-                await ctx.send(f":bank:: :no_entry: **An argument is missing** \nCommand syntax: .give [member] [points]")
+                await ctx.send(f":bank:: :no_entry: **An argument is missing** \nCommand syntax: .give [member] [coins]")
 
     
     @commands.command()
@@ -91,11 +91,11 @@ class Economy(commands.Cog):
             donation = int(donation)
             number_of_members = int(number_of_members)
         except ValueError:
-            await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non negative number**")
+            await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non-negative number**")
             return
         
         if donation<1 or number_of_members<1:
-            await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non negative number**")
+            await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non-negative number**")
             return
 
         self.db.connect()
@@ -117,7 +117,7 @@ class Economy(commands.Cog):
         for m in range(number_of_members):
             winners.append(random.choice(members))
 
-        embed = discord.Embed(title = f":bank:: :white_check_mark: {ctx.author.name} made a rain :cloud_rain: of **{donation}** points:moneybag:",
+        embed = discord.Embed(title = f":bank:: :white_check_mark: {ctx.author.name} made a rain :cloud_rain: of **{donation}** coins:moneybag:",
                         color= ctx.author.color,
                         timestamp=datetime.utcnow())
         respond = ""
@@ -127,7 +127,7 @@ class Economy(commands.Cog):
         for winner in winners:
             recipient_amount= self.db.getPoints(ctx.guild.name, winner.id) 
             self.db.setPoints(ctx.guild.name, winner.id, recipient_amount+donation_share) #increase recipient's points
-            respond += "\n"+ str(winner.mention ) + " got **" + str(donation_share) + "** points:moneybag:"
+            respond += "\n"+ str(winner.mention ) + " got **" + str(donation_share) + "** coins:moneybag:"
         
         self.db.close_connection()
 
@@ -155,7 +155,7 @@ class Economy(commands.Cog):
         embed = discord.Embed(title = f"🎉 Its your lucky day, Get your reward! 🎁",
                 color= discord.Color.from_rgb(self.reward_points[1][0], self.reward_points[1][1], self.reward_points[1][2]),
                 timestamp=datetime.utcnow())
-        embed.add_field(name= "**" + self.reward_points[0] + "** points:moneybag:" ,
+        embed.add_field(name= "**" + self.reward_points[0] + "** coins:moneybag:" ,
                         value="@everyone Press the 🎁 button below first to get them",
                         inline=False
                         )
@@ -176,7 +176,7 @@ class Economy(commands.Cog):
             self.db.setPoints(reaction.message.guild.name, user.id, points)
             self.db.close_connection()
             await reaction.message.delete()
-            await channel.send(f":bank:: :gift: {user.mention} got the random drop of **{self.reward_points[0]}** points:moneybag: ")
+            await channel.send(f":bank:: :gift: {user.mention} got the random drop of **{self.reward_points[0]}** coins:moneybag: ")
             
 
     @tasks.loop(seconds=3600.0)
