@@ -5,12 +5,13 @@ import random
 import database
 import pprint as debug
 from datetime import datetime
-from discord.ext import commands
+from discord.ext import tasks, commands
 
 class Economy(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.db = database.Database()
+        self.reward.start()
 
     @commands.command()
     async def points(self, ctx):
@@ -142,7 +143,53 @@ class Economy(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(f":bank:: :no_entry: **An argument is missing** \nCommand syntax: .rain [total_amount] [numbers of recipients]")
 
-    #TODO 1 Random pointS drop with reaction
+#===============RANDOM DROPS===================================================================================================
+    async def spawn_reward(self, guild):
+
+        rewards = [
+                    ['25', (205, 127, 50)],
+                    ['250', (192, 192, 192)],
+                    ['500', (255, 215, 0)]
+                  ]
+        self.reward_points = random.choices(population=rewards, weights=[0.7, 0.2, 0.1], k=1)[0]
+        embed = discord.Embed(title = f"🎉 Its your lucky day, Get your reward! 🎁",
+                color= discord.Color.from_rgb(self.reward_points[1][0], self.reward_points[1][1], self.reward_points[1][2]),
+                timestamp=datetime.utcnow())
+        embed.add_field(name= "**" + self.reward_points[0] + "** points:moneybag:" ,
+                        value="@everyone Press the 🎁 button below first to get them",
+                        inline=False
+                        )
+        embed.set_footer(text=f'Requested by: {self.client.user.name}', icon_url=self.client.user.avatar_url)
+
+    
+        channel = random.choice(guild.text_channels)
+        r = await channel.send(embed=embed)
+        await r.add_reaction("🎁")
+
+    @commands.Cog.listener() 
+    async def on_reaction_add(self, reaction, user):
+        channel = reaction.message.channel 
+        if reaction.emoji=="🎁" and int(reaction.count)>1:
+            self.db.connect()
+            points = self.db.getPoints(reaction.message.guild.name, user.id)
+            points += int(self.reward_points[0])-1
+            self.db.setPoints(reaction.message.guild.name, user.id, points)
+            self.db.close_connection()
+            await reaction.message.delete()
+            await channel.send(f":bank:: :gift: {user.mention} got the random drop of **{self.reward_points[0]}** points:moneybag: ")
+            
+
+    @tasks.loop(seconds=3600.0)
+    async def reward(self):
+        for guild in self.client.guilds:
+            if random.random() < 0.2:
+                await self.spawn_reward(guild)
+
+    @reward.before_loop
+    async def before_reward(self):
+        await self.client.wait_until_ready()
+
+#========= RANDOM DROPS =====================================================================================================================
     #TODO 3 Daily Point reward
 
 

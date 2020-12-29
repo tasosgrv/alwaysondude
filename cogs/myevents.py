@@ -78,7 +78,7 @@ class MyEvents(commands.Cog):
         if message.author.bot :
             return
         
-        if not message.content.startswith('.') and len(message.content)<101:
+        if not message.content.startswith('.') and len(message.content)<211:
             self.db.connect()
             points = self.db.getPoints(message.guild.name, message.author.id)
             gained_points = math.floor(len(message.content)*0.12)
