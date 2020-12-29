@@ -27,6 +27,8 @@ class MyEvents(commands.Cog):
             self.db.insert('guilds', guild.id, guild.name, guild.chunked, guild.member_count, guild.owner_id)
             self.db.createTable(guild.name)
             for member in guild.members:
+                if member.name == self.client.user.name:
+                   self.db.insert(member.guild.name , member.id, member.name, member.discriminator, member.bot, member.nick, True, 5000, member.guild.id) 
                 self.db.insert(member.guild.name , member.id, member.name, member.discriminator, member.bot, member.nick, True, 0, member.guild.id)
         self.db.close_connection()
         print(f'Database update complete')   
@@ -56,6 +58,8 @@ class MyEvents(commands.Cog):
         self.db.insert('guilds', guild.id, guild.name, guild.chunked, guild.member_count, guild.owner_id)
         self.db.createTable(guild.name)
         for member in guild.members:
+            if member.name == self.client.name:
+                self.db.insert(member.guild.name , member.id, member.name, member.discriminator, member.bot, member.nick, True, 5000, member.guild.id) 
             self.db.insert(guild.name, member.id, member.name, member.discriminator, member.bot, member.nick, True, 10, member.guild.id)
         self.db.close_connection()
 
