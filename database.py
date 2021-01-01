@@ -1,10 +1,15 @@
 import yaml
 import pprint as debug
 import psycopg2
+import os
+import psycopg2
+
 
 
 class Database:
     
+    _DATABASE_URL = os.environ['DATABASE_URL']
+    _HEROKU = True
     _dbparams = {}
 
     def __init__(self):
@@ -18,7 +23,10 @@ class Database:
             -----------
                 \t psycopg2.connection
         '''
-        self.connection = psycopg2.connect(dbname=Database._dbparams['DB_NAME'], 
+        if Database._HEROKU: 
+            self.connection = psycopg2.connect(Database._DATABASE_URL, sslmode='require')
+        else:
+            self.connection = psycopg2.connect(dbname=Database._dbparams['DB_NAME'], 
                                   user=Database._dbparams['DB_USER'],
                                   password=Database._dbparams['DB_PASS'],
                                   host=Database._dbparams['DB_HOST'],
