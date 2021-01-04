@@ -2,19 +2,21 @@ import yaml
 import pprint as debug
 import psycopg2
 import os
-import psycopg2
 
 
 
 class Database:
     
-    _DATABASE_URL = os.environ['DATABASE_URL']
+    _DATABASE_URL = {}
     _HEROKU = True
     _dbparams = {}
 
     def __init__(self):
-        with open(r'data/dbparams.yaml') as file:
-            Database._dbparams = yaml.load(file, Loader=yaml.FullLoader)
+        if Database._HEROKU:
+            _DATABASE_URL = os.environ['DATABASE_URL']
+        else:
+            with open(r'data/dbparams.yaml') as file:
+                Database._dbparams = yaml.load(file, Loader=yaml.FullLoader)
 
     def connect(self):
         '''
@@ -137,7 +139,7 @@ class Database:
         table = table.replace(" ", "")
         with self.connection.cursor() as cursor:
             try:
-                cursor.execute(f"SELECT name,points FROM {table} ORDER BY points DESC LIMIT {limit} OFFSET {offset*limit}")
+                cursor.execute(f"SELECT name,points FROM {table} WHERE bot is False ORDER BY points DESC LIMIT {limit} OFFSET {offset*limit}")
                 self.data = cursor.fetchall()
             except:
                 print("ERROR")
