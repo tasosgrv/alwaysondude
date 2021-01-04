@@ -45,9 +45,10 @@ class Economy(commands.Cog):
     async def supply(self, ctx):
         async with ctx.message.channel.typing():
             self.db.connect()
-            supply = self.db.getTotalSupply(ctx.guild.name)
+            circ_supply = self.db.getCirculatingSupply(ctx.guild.name)
+            max_supply = self.db.getTotalSupply(ctx.guild.name)
             self.db.close_connection()
-        await ctx.send(f":bank:: :bar_chart: **{ctx.guild.name}**  has a total supply of **{supply}** coins:moneybag:")
+        await ctx.send(f":bank:: :bar_chart: **{ctx.guild.name}** has **{circ_supply}** Circulating Supply and **{max_supply}** coins:moneybag: Max supply")
 
     @commands.command()
     async def give(self, ctx, member, points):
@@ -176,7 +177,7 @@ class Economy(commands.Cog):
             channel = self.client.get_channel(payload.channel_id)
             message = await channel.fetch_message(payload.message_id)
             
-            reward = int(re.search(r'\d+', message.embeds[0].fields[0].name).group())
+            reward = int(re.search(r'\d+', message.embeds[0].fields[0].name).group()) #get the reward points of the embed message
             if payload.emoji.name=="🎁" and payload.event_type=="REACTION_ADD":
                 self.db.connect()
                 points = self.db.getPoints(message.guild.name, payload.member.id)

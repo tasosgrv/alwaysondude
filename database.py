@@ -148,6 +148,29 @@ class Database:
 
         return self.data
 
+    def getCirculatingSupply(self, table):
+        '''
+            Returns the circuleting supply (the points of the users except bots) of points in a certain guild\n
+            Parameters:
+            -----------
+                \table: String\n
+            Return:
+            -----------
+                \tint or None 
+        '''
+        if not self.connection!=0:
+            return None
+        table = table.replace(" ", "")
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute(f"SELECT SUM(points) FROM {table} WHERE bot is False;")
+                self.data = cursor.fetchone()[0]
+            except:
+                print("ERROR")
+                return None
+
+        return self.data
+
     def getTotalSupply(self, table):
         '''
             Returns the total supply of points in a certain guild\n
