@@ -7,7 +7,7 @@ import os
 
 class Database:
     
-    _DATABASE_URL = {}
+    _DATABASE_URL = ''
     _HEROKU = True
     _dbparams = {}
 
