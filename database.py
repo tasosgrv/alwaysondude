@@ -140,7 +140,7 @@ class Database:
         table = table.replace(" ", "")
         with self.connection.cursor() as cursor:
             try:
-                cursor.execute(f"SELECT name,points FROM {table} ORDER BY points DESC LIMIT {limit} OFFSET {offset*limit}")
+                cursor.execute(f"SELECT name,points FROM {table} WHERE bot is False ORDER BY points DESC LIMIT {limit} OFFSET {offset*limit}")
                 self.data = cursor.fetchall()
             except:
                 print("ERROR")
