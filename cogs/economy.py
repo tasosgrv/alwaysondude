@@ -191,7 +191,7 @@ class Economy(commands.Cog):
     @tasks.loop(seconds=3600.0)
     async def reward(self):
         for guild in self.client.guilds:
-            if random.random() < 0.2:
+            if random.random() < 0.1:
                 await self.spawn_reward(guild)
 
     @reward.before_loop
