@@ -19,25 +19,32 @@ class Games(commands.Cog):
         try:    
             self.bet = int(bet)
         except ValueError:
-            await ctx.channel.send(f":coin:: :no_entry: **The amount has to be an integer non-negative number**")
+            await ctx.channel.send(f":coin: : :no_entry: **The amount has to be an integer non-negative number**")
             return
         
         if self.bet<1:
-            await ctx.channel.send(f":coin:: :no_entry: **The amount has to be an integer non-negative number**")
+            await ctx.channel.send(f":coin: : :no_entry: **The amount has to be an integer non-negative number**")
             return
+
+        self.db.connect()
+        points = self.db.getPoints(ctx.guild.name, ctx.author.id)
+        self.db.close_connection()
+
+        if self.bet>points:
+            await ctx.channel.send(f":coin: : :x: **Insufficient amount**")
+            return
+
         self.request = ctx.message
         embed = discord.Embed(title = f"[BETA]:coin:Coin flip for {ctx.author.name}",
                 color= ctx.author.color,
                 timestamp=datetime.utcnow())
         embed.add_field(name='Choose 🔵 or 🔴', value="Reward on win: 2x", inline=False)
-        self.db.connect()
-        points = self.db.getPoints(ctx.guild.name, ctx.author.id)
-        self.db.close_connection()
         embed.add_field(name='Your Balance', value=str(points), inline=False)
         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
         r = await ctx.channel.send(embed=embed)
         await r.add_reaction("🔵")
         await r.add_reaction("🔴")
+
 
     @commands.Cog.listener() 
     async def on_reaction_add(self, reaction, user):
@@ -50,7 +57,7 @@ class Games(commands.Cog):
 
                 self.db.setPoints(channel.guild.name, self.client.user.id, banker_points-(self.bet*2))
                 self.db.setPoints(channel.guild.name, user.id, player_points+(self.bet*2))
-                embed = discord.Embed(title = f"[BETA]:coin:: :white_check_mark: {user.name} **WON** with {reaction.emoji}",
+                embed = discord.Embed(title = f"[BETA]:coin: : :white_check_mark: {user.name} **WON** with {reaction.emoji}",
                                         color= discord.Color.green(),
                                         timestamp=datetime.utcnow())
                 embed.add_field(name='You won', value=f"**{str(self.bet*2)}** coins:moneybag:", inline=False)
@@ -60,7 +67,7 @@ class Games(commands.Cog):
             else:
                 self.db.setPoints(channel.guild.name, self.client.user.id, banker_points+self.bet)
                 self.db.setPoints(channel.guild.name, user.id, player_points-self.bet)
-                embed = discord.Embed(title = f"[BETA]:coin:: :x: {user.name} **LOST** with {reaction.emoji}",
+                embed = discord.Embed(title = f"[BETA]:coin: : :x: {user.name} **LOST** with {reaction.emoji}",
                                         color= discord.Color.red(),
                                         timestamp=datetime.utcnow())
                 embed.add_field(name='You lost', value=f"**{str(self.bet)}** coins:moneybag:", inline=False)
