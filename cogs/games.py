@@ -48,7 +48,7 @@ class Games(commands.Cog):
             banker_points = self.db.getPoints(channel.guild.name, self.client.user.id) #get points of the player
             if games.Coinflip(self.bet, user, reaction).result:
 
-                self.db.setPoints(channel.guild.name, self.client.user.id, banker_points-self.bet)
+                self.db.setPoints(channel.guild.name, self.client.user.id, banker_points-(self.bet*2))
                 self.db.setPoints(channel.guild.name, user.id, player_points+(self.bet*2))
                 embed = discord.Embed(title = f"[BETA]:coin:: :white_check_mark: {user.name} **WON** with {reaction.emoji}",
                                         color= discord.Color.green(),

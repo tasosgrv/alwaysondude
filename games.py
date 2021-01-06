@@ -25,10 +25,10 @@ class Coinflip(Game):
         random.seed(self._Game__seed)
         positions = ["🔵", "🔴"]
         if random.choice(positions) == self.reaction.emoji:
-            print(f"{self.user.name} won \t Seed: {self._Game__seed}")
+            print(f"{self.user.name} won {Coinflip.__name__} \t Seed: {self._Game__seed}")
             return True
         else:
-            print(f"{self.user.name} lose \t Seed: {self._Game__seed}")
+            print(f"{self.user.name} lose {Coinflip.__name__} \t Seed: {self._Game__seed}")
             return False
 
     def __str__(self):
