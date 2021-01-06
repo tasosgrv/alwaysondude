@@ -1,5 +1,4 @@
 import discord
-import logging
 import math
 import random
 import re
@@ -177,7 +176,11 @@ class Economy(commands.Cog):
             channel = self.client.get_channel(payload.channel_id)
             message = await channel.fetch_message(payload.message_id)
             
-            reward = int(re.search(r'\d+', message.embeds[0].fields[0].name).group()) #get the reward points of the embed message
+            try:
+                reward = int(re.search(r'\d+', message.embeds[0].fields[0].name).group()) #get the reward points of the embed message
+            except AttributeError:
+                return
+
             if payload.emoji.name=="🎁" and payload.event_type=="REACTION_ADD":
                 self.db.connect()
                 points = self.db.getPoints(message.guild.name, payload.member.id)
