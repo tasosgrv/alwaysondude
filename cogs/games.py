@@ -41,7 +41,7 @@ class Games(commands.Cog):
 
     @commands.Cog.listener() 
     async def on_reaction_add(self, reaction, user):
-        if self.request.author==user or int(reaction.count)>1:
+        if self.request.author==user and int(reaction.count)>1:
             channel = reaction.message.channel
             self.db.connect()
             player_points = self.db.getPoints(channel.guild.name, user.id) #get points of the player
