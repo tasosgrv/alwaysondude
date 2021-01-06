@@ -25,7 +25,7 @@ class Games(commands.Cog):
         if self.bet<1:
             await ctx.channel.send(f":coin:: :no_entry: **The amount has to be an integer non-negative number**")
             return
-
+        self.request = ctx.message
         embed = discord.Embed(title = f"[BETA]:coin:Coin flip for {ctx.author.name}",
                 color= ctx.author.color,
                 timestamp=datetime.utcnow())
@@ -41,7 +41,7 @@ class Games(commands.Cog):
 
     @commands.Cog.listener() 
     async def on_reaction_add(self, reaction, user):
-        if int(reaction.count)>1:
+        if self.request.author==user or int(reaction.count)>1:
             channel = reaction.message.channel
             self.db.connect()
             player_points = self.db.getPoints(channel.guild.name, user.id) #get points of the player
