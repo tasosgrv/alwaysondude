@@ -47,7 +47,7 @@ class Economy(commands.Cog):
             circ_supply = self.db.getCirculatingSupply(ctx.guild.name)
             max_supply = self.db.getTotalSupply(ctx.guild.name)
             self.db.close_connection()
-        await ctx.send(f":bank:: :bar_chart: **{ctx.guild.name}** has **{circ_supply}** Circulating Supply and **{max_supply}** coins:moneybag: Max supply")
+        await ctx.send(f":bank:: :bar_chart: **{ctx.guild.name}** has **{circ_supply}** coin:moneybag: Circulating Supply and **{max_supply}** coins:moneybag: Total supply")
 
     @commands.command()
     async def give(self, ctx, member, points):
@@ -118,7 +118,9 @@ class Economy(commands.Cog):
         #pick the winners
         winners = []
         for m in range(number_of_members):
-            winners.append(random.choice(members))
+            winner = random.choice(members)
+            winners.append(winner)
+            members.pop(winner)
 
         embed = discord.Embed(title = f":bank:: :white_check_mark: {ctx.author.name} made a rain :cloud_rain: of **{donation}** coins:moneybag:",
                         color= ctx.author.color,
@@ -154,7 +156,7 @@ class Economy(commands.Cog):
                     ['250', (192, 192, 192)],
                     ['500', (255, 215, 0)]
                   ]
-        self.reward_points = random.choices(population=rewards, weights=[0.7, 0.2, 0.1], k=1)[0]
+        self.reward_points = random.choices(population=rewards, weights=[0.9, 0.08, 0.02], k=1)[0]
         
         embed = discord.Embed(title = f"🎉 Its your lucky day, Get your reward! 🎁",
                 color= discord.Color.from_rgb(self.reward_points[1][0], self.reward_points[1][1], self.reward_points[1][2]),

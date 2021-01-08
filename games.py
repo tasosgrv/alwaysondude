@@ -3,6 +3,7 @@ import re
 from datetime import datetime
 
 class Game:
+
     def __init__(self, bet, user, reaction):
         self.bet = bet
         self.user = user
@@ -12,7 +13,8 @@ class Game:
 
 
     def calculateSeed(self):
-        return hash((str(datetime.utcnow()), str(self.user.id)))
+        ts = str(datetime.datetime.now().timestamp()).replace('.', '')
+        return hash((int(ts), self.user.id, self.reaction.message.id)[-12:])
 
     def play(self):
         print(f"{self.user.name} wagerd {self.bet} on a Game")

@@ -56,12 +56,12 @@ class Games(commands.Cog):
             if games.Coinflip(self.bet, user, reaction).result:
 
                 self.db.setPoints(channel.guild.name, self.client.user.id, banker_points-(self.bet*2))
-                self.db.setPoints(channel.guild.name, user.id, player_points+(self.bet*2))
+                self.db.setPoints(channel.guild.name, user.id, player_points+self.bet)
                 embed = discord.Embed(title = f"[BETA]:coin: : :white_check_mark: {user.name} **WON** with {reaction.emoji}",
                                         color= discord.Color.green(),
                                         timestamp=datetime.utcnow())
                 embed.add_field(name='You won', value=f"**{str(self.bet*2)}** coins:moneybag:", inline=False)
-                embed.add_field(name='Your new balance', value=f"**{str(player_points+(self.bet*2))}** coins:moneybag:", inline=False)
+                embed.add_field(name='Your new balance', value=f"**{str(player_points+self.bet)}** coins:moneybag:", inline=False)
                 embed.set_footer(text=f'Requested by: {user.name}', icon_url=user.avatar_url)                                        
                 await channel.send(embed=embed)
             else:
