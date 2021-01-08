@@ -39,7 +39,7 @@ class Games(commands.Cog):
                 color= ctx.author.color,
                 timestamp=datetime.utcnow())
         embed.add_field(name='Choose 🔵 or 🔴', value="Reward on win: 2x", inline=False)
-        embed.add_field(name='Your Balance', value=str(points-self.bet), inline=False)
+        embed.add_field(name='Your Balance', value=str(points), inline=False)
         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
         r = await ctx.channel.send(embed=embed)
         await r.add_reaction("🔵")
