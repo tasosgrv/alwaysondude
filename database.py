@@ -9,7 +9,7 @@ import psycopg2
 class Database:
     
     _DATABASE_URL = ''
-    _HEROKU = False
+    _HEROKU = True
     _dbparams = {}
 
     def __init__(self):
