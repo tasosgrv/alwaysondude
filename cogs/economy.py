@@ -146,7 +146,7 @@ class Economy(commands.Cog):
     @rain.error
     async def rain_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f":bank:: :no_entry: **An argument is missing** \nCommand syntax: .rain [total_amount] [numbers of recipients]")
+            await ctx.send(f":bank:: :no_entry: **An argument is missing** \nCommand syntax: .rain [total_amount] [number of recipients]")
 
 #===============RANDOM DROPS===================================================================================================
     async def spawn_reward(self, guild):
@@ -181,6 +181,8 @@ class Economy(commands.Cog):
             try:
                 reward = int(re.search(r'\d+', message.embeds[0].fields[0].name).group()) #get the reward points of the embed message
             except AttributeError:
+                return
+            except IndexError:
                 return
 
             if payload.emoji.name=="🎁" and payload.event_type=="REACTION_ADD":

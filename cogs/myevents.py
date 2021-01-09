@@ -103,15 +103,27 @@ class MyEvents(commands.Cog):
 
     @commands.Cog.listener() 
     async def on_reaction_add(self, reaction, user):
-        if user.bot:
+        if user.bot  or reaction.message.author==self.client.user: #if the reaction made from a bot or if the reaction made to the client
             return
         self.db.connect()
         points = self.db.getPoints(user.guild.name, user.id)
         gained_points = 1
-        self.db.setPoints(user.guild.name, user.id, points)
+        self.db.setPoints(user.guild.name, user.id, points+gained_points)
         self.db.close_connection()
         print(f"{user.guild.name}: {user} gained {gained_points} points")
         logging.info(f"{user.guild.name}: {user} gained {gained_points} points")
+
+    @commands.Cog.listener() 
+    async def on_reaction_remove(self, reaction, user):
+        if user.bot or reaction.message.author==self.client.user:
+            return
+        self.db.connect()
+        points = self.db.getPoints(user.guild.name, user.id)
+        remove_points = 1
+        self.db.setPoints(user.guild.name, user.id, points-remove_points)
+        self.db.close_connection()
+        print(f"{user.guild.name}: {user} lost {remove_points} points")
+        logging.info(f"{user.guild.name}: {user} lost {remove_points} points")
 
     '''
     @commands.Cog.listener()

@@ -9,7 +9,7 @@ import psycopg2
 class Database:
     
     _DATABASE_URL = ''
-    _HEROKU = True
+    _HEROKU = False
     _dbparams = {}
 
     def __init__(self):
@@ -260,7 +260,7 @@ class Database:
         '''
         if not self.connection!=0:
             return False
-        if not table or not member_id or not points:
+        if not table or not member_id:
             return False
         if points<0:
             return False 

@@ -45,6 +45,10 @@ class Games(commands.Cog):
         await r.add_reaction("🔵")
         await r.add_reaction("🔴")
 
+    @coinflip.error
+    async def coinflip_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f":coin: : :no_entry: **An argument is missing** \nCommand syntax: .coinflip [bet_amount]")
 
     @commands.Cog.listener() 
     async def on_reaction_add(self, reaction, user):
@@ -53,6 +57,7 @@ class Games(commands.Cog):
             self.db.connect()
             player_points = self.db.getPoints(channel.guild.name, user.id) #get points of the player
             banker_points = self.db.getPoints(channel.guild.name, self.client.user.id) #get points of the player
+            
             if games.Coinflip(self.bet, user, reaction).result:
 
                 self.db.setPoints(channel.guild.name, self.client.user.id, banker_points-(self.bet*2))
@@ -65,8 +70,8 @@ class Games(commands.Cog):
                 embed.set_footer(text=f'Requested by: {user.name}', icon_url=user.avatar_url)                                        
                 await channel.send(embed=embed)
             else:
-                self.db.setPoints(channel.guild.name, self.client.user.id, banker_points+self.bet)
                 self.db.setPoints(channel.guild.name, user.id, player_points-self.bet)
+                self.db.setPoints(channel.guild.name, self.client.user.id, banker_points+self.bet)
                 embed = discord.Embed(title = f"[BETA]:coin: : :x: {user.name} **LOST** with {reaction.emoji}",
                                         color= discord.Color.red(),
                                         timestamp=datetime.utcnow())
