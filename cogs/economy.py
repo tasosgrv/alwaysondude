@@ -120,7 +120,6 @@ class Economy(commands.Cog):
         for m in range(number_of_members):
             winner = random.choice(members)
             winners.append(winner)
-            members.pop(winner)
 
         embed = discord.Embed(title = f":bank:: :white_check_mark: {ctx.author.name} made a rain :cloud_rain: of **{donation}** coins:moneybag:",
                         color= ctx.author.color,
