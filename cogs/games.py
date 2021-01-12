@@ -35,13 +35,13 @@ class Games(commands.Cog):
             return
 
         self.request = ctx.message
-        embed = discord.Embed(title = f"[BETA]:coin:Coin flip for {ctx.author.name}",
+        embed = discord.Embed(title = f"Game :coin:Coin flip for {ctx.author.name}",
                 color= ctx.author.color,
                 timestamp=datetime.utcnow())
         embed.add_field(name='Choose 🔵 or 🔴', value="Reward on win: 2x", inline=False)
         embed.add_field(name='Your Balance', value=str(points), inline=False)
         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
-        r = await ctx.channel.send(embed=embed)
+        r = await ctx.message.reply(embed=embed)
         await r.add_reaction("🔵")
         await r.add_reaction("🔴")
 
@@ -52,8 +52,14 @@ class Games(commands.Cog):
 
     @commands.Cog.listener() 
     async def on_reaction_add(self, reaction, user):
-        if self.request.author==user and int(reaction.count)>1:
-            channel = reaction.message.channel
+        
+        channel = reaction.message.channel
+        try:
+            request = await channel.fetch_message(reaction.message.reference.message_id)
+        except AttributeError:
+            return
+        
+        if request.author==user and int(reaction.count)>1:
             self.db.connect()
             player_points = self.db.getPoints(channel.guild.name, user.id) #get points of the player
             banker_points = self.db.getPoints(channel.guild.name, self.client.user.id) #get points of the player
@@ -68,7 +74,7 @@ class Games(commands.Cog):
                 embed.add_field(name='You won', value=f"**{str(self.bet*2)}** coins:moneybag:", inline=False)
                 embed.add_field(name='Your new balance', value=f"**{str(player_points+self.bet)}** coins:moneybag:", inline=False)
                 embed.set_footer(text=f'Requested by: {user.name}', icon_url=user.avatar_url)                                        
-                await channel.send(embed=embed)
+                await request.reply(embed=embed)
             else:
                 self.db.setPoints(channel.guild.name, user.id, player_points-self.bet)
                 self.db.setPoints(channel.guild.name, self.client.user.id, banker_points+self.bet)
@@ -78,7 +84,7 @@ class Games(commands.Cog):
                 embed.add_field(name='You lost', value=f"**{str(self.bet)}** coins:moneybag:", inline=False)
                 embed.add_field(name='Your new balance', value=f"**{str(player_points-self.bet)}** coins:moneybag:", inline=False)
                 embed.set_footer(text=f'Requested by: {user.name}', icon_url=user.avatar_url)                                        
-                await channel.send(embed=embed)
+                await request.reply(embed=embed)
             self.db.close_connection()
             await reaction.message.delete()
             
