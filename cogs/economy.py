@@ -165,7 +165,7 @@ class Economy(commands.Cog):
                         inline=False
                         )
         embed.set_footer(text=f'Requested by: {self.client.user.name}', icon_url=self.client.user.avatar_url)
-   
+
         channel = random.choice(guild.text_channels)
         r = await channel.send('@everyone', embed=embed)
         await r.add_reaction("🎁")
@@ -197,7 +197,7 @@ class Economy(commands.Cog):
     @tasks.loop(seconds=3600.0)
     async def reward(self):
         for guild in self.client.guilds:
-            if random.random() < 0.1:
+            if random.random() < 0.15:
                 await self.spawn_reward(guild)
 
     @reward.before_loop
