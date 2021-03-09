@@ -59,7 +59,7 @@ class Database:
                                     bot BOOLEAN NOT NULL,
                                     nick VARCHAR(32),  
                                     chunked BOOLEAN NOT NULL,
-                                    points INT,
+                                    points REAL,
                                     guild_id BIGINT REFERENCES guilds(id) 
                                     ON DELETE CASCADE
                                 )

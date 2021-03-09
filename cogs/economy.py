@@ -53,7 +53,7 @@ class Economy(commands.Cog):
     async def give(self, ctx, member, points):
         async with ctx.message.channel.typing():
             try:    
-                payment = int(points)
+                payment = float(points)
             except ValueError:
                 await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non-negative number**")
                 return
@@ -89,7 +89,7 @@ class Economy(commands.Cog):
     @commands.command()
     async def rain(self, ctx, donation, number_of_members):
         try:    
-            donation = int(donation)
+            donation = float(donation)
             number_of_members = int(number_of_members)
         except ValueError:
             await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non-negative number**")
@@ -178,7 +178,7 @@ class Economy(commands.Cog):
             message = await channel.fetch_message(payload.message_id)
             
             try:
-                reward = int(re.search(r'\d+', message.embeds[0].fields[0].name).group()) #get the reward points of the embed message
+                reward = float(re.search(r'\d+', message.embeds[0].fields[0].name).group()) #get the reward points of the embed message
             except AttributeError:
                 return
             except IndexError:
