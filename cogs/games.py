@@ -58,8 +58,8 @@ class Games(commands.Cog):
             await ctx.channel.send(f":slot_machine: : :no_entry: **The amount has to be a non-negative number**")
             return
         
-        if self.bet<1:
-            await ctx.channel.send(f":slot_machine: : :no_entry: **The amount has to be a non-negative number**")
+        if self.bet<0.10:
+            await ctx.channel.send(f":slot_machine: : :no_entry: **The amount has to be a number over 0.10**")
             return
 
         self.db.connect()
