@@ -75,7 +75,7 @@ class Games(commands.Cog):
         embed = discord.Embed(title = f"[BETA]:slot_machine: Slot Machine for {ctx.author.name}",
                 color= ctx.author.color,
                 timestamp=datetime.utcnow())
-        embed.add_field(name="How to play", value="Press the :repeat: to play\nPress the :stop_button: to play", inline=False)
+        embed.add_field(name="How to play", value="Press the :repeat: to play\nPress the :stop_button: to stop", inline=False)
         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
         r = await ctx.message.reply(embed=embed)
         await r.add_reaction("🔁")
@@ -93,27 +93,35 @@ class Games(commands.Cog):
         if request.author==user and int(reaction.count)>1:
             self.db.connect()
             player_points = self.db.getPoints(channel.guild.name, user.id) #get points of the player
-            banker_points = self.db.getPoints(channel.guild.name, self.client.user.id) #get points of the player
+            banker_points = self.db.getPoints(channel.guild.name, self.client.user.id) #get points of the banker
             
             if ".slot" in request.content:
-                if reaction.emoji=="🔁":
+                if reaction.emoji=="🔁" and self.bet<=player_points:
                     slot = self.game.play()
                     
                     self.db.setPoints(channel.guild.name, user.id, player_points-self.bet)
                     self.db.setPoints(channel.guild.name, self.client.user.id, banker_points+self.bet)
-                    if slot[0]>0:
+                    if slot[0]>0: #if player won
                         self.db.setPoints(channel.guild.name, user.id, player_points+(slot[0]*self.bet))
-                        self.db.setPoints(channel.guild.name, self.client.user.id, banker_points+(slot[0]*self.bet))
+                        self.db.setPoints(channel.guild.name, self.client.user.id, banker_points-(slot[0]*self.bet))
                     
                     embed = discord.Embed(title = f"[BETA] :slot_machine: Slot Machine for {user.name}",
                             color= user.color,
                             timestamp=datetime.utcnow())
                     embed.add_field(name='Spin: '+str(self.game.counter), value=str(' '.join(map(str, slot[1]))), inline=False)
-                    embed.add_field(name='Balance', value="**"+str(float(player_points) + (float(slot[0])*float(self.bet)))+"**:moneybag:", inline=True)
+                    embed.add_field(name='Balance', value="**"+str(self.db.getPoints(channel.guild.name, user.id))+"**:moneybag:", inline=True)
                     embed.add_field(name='You Won', value="**"+str(float(slot[0])*float(self.bet))+"**:moneybag:", inline=True)
                     embed.add_field(name='Multiplier', value=str(slot[0])+"x", inline=True)
                     embed.set_footer(text=f'Requested by: {user.name}', icon_url=user.avatar_url)
                     await reaction.message.remove_reaction(reaction.emoji, user)
+                else: #not enough money to play message
+                    embed = discord.Embed(title = f"[BETA]:slot_machine: :x: Slot Machine for {user.name}",
+                            color= user.color,
+                            timestamp=datetime.utcnow())
+                    embed.add_field(name=':x: **Insufficient amount**', value='You dont have **'+str(self.bet)+'** coins:moneybag: to play the next spin', inline=False)
+                    embed.add_field(name='Played', value="**"+str(self.game.counter)+"** spins\n**"+str(self.game.counter*self.bet)+"** coins :moneybag:", inline=True)
+                    embed.set_footer(text=f'Requested by: {user.name}', icon_url=user.avatar_url)
+                    await reaction.message.clear_reactions()
                 if reaction.emoji=="⏹️":
                     embed = discord.Embed(title = f"[BETA]:slot_machine: Slot Machine for {user.name}",
                             color= user.color,
