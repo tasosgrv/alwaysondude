@@ -4,7 +4,7 @@ import random
 import re
 import database
 import pprint as debug
-from datetime import datetime
+from datetime import datetime, timedelta
 from discord.ext import tasks, commands
 
 class Economy(commands.Cog):
@@ -13,7 +13,7 @@ class Economy(commands.Cog):
         self.db = database.Database()
         self.reward.start()
 
-    @commands.command()
+    @commands.command(aliases=['bal', 'b'])
     async def balance(self, ctx):
         async with ctx.message.channel.typing():
             self.db.connect()
@@ -21,7 +21,7 @@ class Economy(commands.Cog):
             self.db.close_connection()
         await ctx.send(f":bank: {ctx.author.mention} has **{points}** coins:moneybag:")
 
-    @commands.command()
+    @commands.command(aliases=['leadr', 'l'])
     async def leaderboard(self, ctx):
         async with ctx.message.channel.typing():
             embed = discord.Embed(title = f":bank: :bar_chart: Coins Leaderboard for {ctx.guild.name}",
@@ -72,9 +72,7 @@ class Economy(commands.Cog):
             member = await ctx.guild.fetch_member(user)
 
             self.db.connect()
-            recipient_amount= self.db.getPoints(ctx.guild.name, member.id)
-            self.db.setPoints(ctx.guild.name, ctx.author.id, sender_amount-payment) #decreace sender's points 
-            self.db.setPoints(ctx.guild.name, member.id, recipient_amount+payment) #increase recipient's points
+            self.db.transferPoints(ctx.guild.name, ctx.author.id, payment, member.id)
             self.db.close_connection()
 
             await ctx.channel.send(f":bank:: :white_check_mark: {ctx.author.mention} gave **{payment}** coins:moneybag: to {member.mention}")
@@ -147,6 +145,42 @@ class Economy(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(f":bank:: :no_entry: **An argument is missing** \nCommand syntax: .rain [total_amount] [number of recipients]")
 
+    @commands.command(aliases=['dr'])
+    async def daily(self, ctx):
+        self.db.connect()
+        lastclaim = self.db.getDailyRewardTime(ctx.guild.name, ctx.author.id)
+        now = datetime.now()
+        
+        if (now - lastclaim) > timedelta(days=1):
+
+            points = self.db.getPoints(ctx.guild.name, ctx.author.id)
+            self.db.setPoints(ctx.guild.name, ctx.author.id, points+25)
+            self.db.setDailyRewardTime(ctx.guild.name, ctx.author.id, now)
+            
+            embed = discord.Embed(title = f":bank:: :white_check_mark: You clamed your daily reward!",
+                    color=discord.Color.green(),
+                    timestamp=datetime.utcnow())
+            embed.add_field(name='25 coins:moneybag:', value=f"Last claim was before {(now - lastclaim).days} days", inline=False)
+            embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
+
+        else:
+            d = (lastclaim+timedelta(days=1))-now
+            seconds = d.total_seconds()
+            hours = seconds // 3600
+            minutes = (seconds % 3600) // 60
+            seconds = seconds % 60
+
+            embed = discord.Embed(title = f":bank:: :x: You have already claimed your daily reward",
+                    color=discord.Color.red(),
+                    timestamp=datetime.utcnow())
+            embed.add_field(name=':hourglass_flowing_sand: Next claim after', value=f"**{hours:.0f}** hours **{minutes:.0f}** minutes **{seconds:.0f}** seconds", inline=False)
+            embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
+
+        self.db.close_connection()
+        await ctx.message.reply(embed=embed)
+
+
+
 #===============RANDOM DROPS===================================================================================================
     async def spawn_reward(self, guild):
 
@@ -190,14 +224,13 @@ class Economy(commands.Cog):
                 points += reward-1
                 self.db.setPoints(message.guild.name, payload.member.id, points)
                 self.db.close_connection()
-                await message.delete()
-                await channel.send(f":bank:: :gift: {payload.member.mention} got the random drop of **{reward}** coins:moneybag: ")
+                await message.edit(f":bank:: :gift: {payload.member.mention} got the random drop of **{reward}** coins:moneybag: ")
             
 
     @tasks.loop(seconds=3600.0)
     async def reward(self):
         for guild in self.client.guilds:
-            if random.random() < 0.15:
+            if random.random() < 0.10:
                 await self.spawn_reward(guild)
 
     @reward.before_loop
@@ -205,7 +238,7 @@ class Economy(commands.Cog):
         await self.client.wait_until_ready()
 
 #========= RANDOM DROPS =====================================================================================================================
-    #TODO 3 Daily Point reward
+
 
 
             

@@ -1,16 +1,8 @@
 import random
 import re
 import csv
+import PlayingCards
 from datetime import datetime
-
-class User:
-    def __init__(self):
-        self.name = 'Tasos'
-        self.id = 420058166651256842
-class Reaction:
-    def __init__(self):
-        self.emoji = '🔴'
-        self.id = 809385851334557706
 
 
 class Game:
@@ -20,7 +12,7 @@ class Game:
         self.user = user
         self.counter = -1
         self.__seed = self.calculateSeed()
-        self.result = self.play()
+        self.result = None
 
 
     def calculateSeed(self):
@@ -29,30 +21,32 @@ class Game:
     def play(self):
         print(f"{self.user.name} wagerd {self.bet} on a Game with seed {self.__seed}")
 
+
 class Coinflip(Game):
-    def __init__(self, bet, user, reaction):
-        self.reaction = reaction 
+
+    def __init__(self, bet, user):
         super().__init__(bet, user)
         
     
-    def play(self):
+    def play(self, reaction):
+        self.reaction = reaction
         self._Game__seed = self.calculateSeed()
         random.seed(self._Game__seed)
-        positions = ["🔵", "🔴"]
-        if random.choice(positions) == self.reaction.emoji:
+        positions = ["heads", "tails"]
+        if random.choice(positions) == self.reaction.emoji.name:
             #print(f"{self.user.name} won {Coinflip.__name__} \t Seed: {self._Game__seed}")
             return True
         else:
             #print(f"{self.user.name} lose {Coinflip.__name__} \t Seed: {self._Game__seed}")
             return False
 
-    def simulate(self, simulations, NumberOfGames):
+    def simulate(self, simulations, NumberOfGames, reaction):
         for x in range(0,simulations):
             totalStake = 0
             totalWin = 0
             games = 0 
             for i in range(0,NumberOfGames):
-                r = self.play()
+                r = self.play(reaction)
                 games+=1
                 totalStake+=bet
                 if r:
@@ -119,7 +113,7 @@ class Slot(Game):
             sims = []
             for i in range(0,NumberOfGames):
                 r = self.play()
-                row = [r[0], " ".join(map(str, r[1])), self._Game__seed]
+                row = reaction.emoji.name, [r[0], " ".join(map(str, r[1])), self._Game__seed]
                 sims.append(row) 
                 games+=1
                 totalStake+=bet
@@ -138,15 +132,94 @@ class Slot(Game):
         return f"{Slot.__name__} {self.user.name} {self.bet} {self.reaction.emoji} {self._Game__seed}"
 
 
+class FindTheKing(Game):
+    def __init__(self, bet, user):
+        super().__init__(bet, user)
+
+    def play(self, reaction):
+        self.reaction = reaction
+        self._Game__seed = self.calculateSeed()
+        random.seed(self._Game__seed)
+
+        if reaction.emoji.name == "cardBackRed":
+            self.reaction = 0
+        elif reaction.emoji.name == "cardBackGreen":
+            self.reaction = 1
+        elif reaction.emoji.name == "cardBackBlue":
+            self.reaction = 2
+        else:
+            self.reaction = None
+            return None
+
+        positions = ["<:cardSpadesK:853266560361824256>", "<:cardJoker:853266881603829791> ", "<:cardJoker:853266881603829791> "]
+        random.shuffle(positions)
+    
+        if positions[self.reaction]=="<:cardSpadesK:853266560361824256>":
+            return (True, positions)
+        else:
+            return (False, positions)
+    
+    def simulate(self, simulations, NumberOfGames, reaction):
+        for x in range(0,simulations):
+            totalStake = 0
+            totalWin = 0
+            games = 0
+            sims = []
+            for i in range(0,NumberOfGames):
+                r = self.play(reaction)
+                row = [reaction.emoji.name, r[0], " ".join(map(str, r[1])), self._Game__seed]
+                sims.append(row) 
+                games+=1
+                totalStake+=bet
+                totalWin+=bet*r[0]
+            
+            with open('ftk_simulations.csv', mode="w") as sims_file:
+                sims_writer = csv.writer(sims_file, delimiter=',')
+                sims_writer.writerows(sims)
+
+            RTP = (totalWin/totalStake)*100 
+
+            print(f"Bet:{bet} Games:{games} Total Stake:{totalStake} Total Win:{totalWin} RTP:{RTP:.2f}%")
+
+    def __str__(self):
+        return f"{FindTheKing.__name__} {self.user.name} {self.bet} {self.reaction.emoji} {self._Game__seed}"
+
+
+
+
+
 if __name__ == "__main__":
 
-    user = User()
-    reaction = Reaction()
+    class FakeUser:
+        def __init__(self):
+            self.name = 'Tasos'
+            self.id = 420058166651256842
+
+    class FakeEmoji:
+        def __init__(self):
+            self.name = 'cardBackGreen'
+            self.id = 853266658201436190
+
+        def __repr__(self):
+            return f"<:{self.name}:{self.id}>"
+
+    class FakeReaction:
+        def __init__(self):
+            self.emoji = FakeEmoji()
+            self.id = 809385851334557706
+
+
+    user = FakeUser()
+    reaction = FakeReaction()
     bet = 1
-    #c = Coinflip(bet, user, reaction)
+    #c = Coinflip(bet, user)
     #c.simulate(1, 10)
 
-    s = Slot(bet, user)
-    s.simulate(10, 1000000)
+    #s = Slot(bet, user)
+    #s.simulate(10, 1000000)
+
+    f=FindTheKing(bet, user)
+    f.simulate(1, 1000000, reaction)
+
 
     

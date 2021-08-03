@@ -2,14 +2,14 @@ import yaml
 import pprint as debug
 import psycopg2
 import os
-import psycopg2
+import datetime
 
 
 
 class Database:
     
     _DATABASE_URL = ''
-    _HEROKU = True
+    _HEROKU = False
     _dbparams = {}
 
     def __init__(self):
@@ -61,7 +61,8 @@ class Database:
                                     chunked BOOLEAN NOT NULL,
                                     points REAL,
                                     guild_id BIGINT REFERENCES guilds(id) 
-                                    ON DELETE CASCADE
+                                    ON DELETE CASCADE,
+                                    dailyreward timestamp
                                 )
                                ''')
                 self.connection.commit()
@@ -253,7 +254,7 @@ class Database:
             -----------
                 \ttable: String\n
                 \tmember_id: int\n
-                \tpoints: int
+                \tpoints: float
             Returns:
             -----------
                 \tBoolean
@@ -274,6 +275,81 @@ class Database:
                 return False
 
         return True
+
+    def transferPoints(self, table, sender_id, points, receiver_id):
+        '''
+            Transfers points from a user to another user in the same guild (table) \n
+            Parameters:
+            -----------
+                \ttable: String\n
+                \tsender_id: int\n
+                \tpoints: float\n
+                \treceiver_id
+            Returns:
+            -----------
+                \tBoolean
+        '''
+        if not self.connection!=0:
+            return False
+        if not table or not sender_id or not receiver_id:
+            return False
+        if points<0:
+            return False
+        table = table.replace(" ", "")
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute(f"SELECT points FROM {table} WHERE id='%s'", (sender_id,))
+                sender_new = cursor.fetchone()[0] - points
+                cursor.execute(f"UPDATE {table} SET points='%s' WHERE id='%s'", (sender_new, sender_id,))
+                
+                cursor.execute(f"SELECT points FROM {table} WHERE id='%s'", (receiver_id,))
+                receiver_new = cursor.fetchone()[0] + points
+                cursor.execute(f"UPDATE {table} SET points='%s' WHERE id='%s'", (receiver_new, receiver_id,))
+                self.connection.commit()
+            except Exception(e):
+                print(e)
+                return False
+
+        return True
+
+        
+
+
+    def betPlaced(self, table, member_id, bet_amount, game, win):
+        '''
+            Place a new bet from a user into database, increases the bet counter column and adds the bet amount to the total wagered:
+            -----------
+                \ttable: String\n
+                \tmember_id: int\n
+                \tbet_amount: float
+            Returns:
+            -----------
+                \tBoolean
+        '''
+
+        if not self.connection!=0:
+            return False
+        if not table or not game or not member_id:
+            return False
+        if bet_amount<0:
+            return False
+        table = table.replace(" ", "")
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute(f"SELECT {game},wagered,winnings FROM {table} WHERE id='%s'", (member_id,))
+                player_game, player_wagered, player_winnings = cursor.fetchone()
+                player_game+=1
+                player_wagered+=bet_amount
+                player_winnings+=win
+                cursor.execute(f"UPDATE {table} SET {game}='%s', wagered='%s', winnings='%s' WHERE id='%s'", (player_game, player_wagered, player_winnings, member_id,))
+                self.connection.commit()
+            except Exception as e:
+                print(e)
+                return False
+
+        return True
+
+
 
     def delete(self, table, id):
         '''
@@ -297,6 +373,61 @@ class Database:
         return True
 
 
+    def setDailyRewardTime(self, table, member_id, time):
+        '''
+            Sets the time of the claimed daily reward for a certain member into the database\n
+            Parameters:
+            -----------
+                \ttable: String\n
+                \tmember_id: int\n
+                \time: datetime
+            Returns:
+            -----------
+                \tBoolean
+        '''
+        if not self.connection:
+            return False
+        if not table or not member_id:
+            return False
+        if not time:
+            return False 
+        table = table.replace(" ", "")
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute(f"UPDATE {table} SET dailyreward=%s WHERE id='%s'", (time, member_id,))
+                self.connection.commit()
+            except Exception as e:
+                print(f"ERROR on setDailyRewardTime: {e}")
+                return False
+
+        return True
+
+    def getDailyRewardTime(self, table, member_id):
+        '''
+            Returns the datetime of the last clamed daily reward of a certain member\n
+            Parameters:
+            -----------
+                \tmember_id: int\n
+            Return:
+            -----------
+                \tdatetime or None 
+        '''
+        if not self.connection:
+            return None
+        if not table or not member_id:
+            return False
+        table = table.replace(" ", "")
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute(f"SELECT dailyreward FROM {table} WHERE id='%s'", (member_id,))
+                self.data = cursor.fetchone()[0]
+            except Exception as e:
+                print(f"ERROR on getDailyRewardTime: {e}")
+                return None
+
+        return self.data
+
+
     def close_connection(self):
         '''
         Closes the connection with the database\n
@@ -313,7 +444,13 @@ class Database:
 if __name__=="__main__":
     db = Database()
     db.connect()
-    print(db.getLeaderboard('☢Ƀu₹₦€₹$☢', 10))
+
+    
+    db.setDailyRewardTime("☢Ƀu₹₦€₹$☢", 786033389751762944, datetime.datetime.now())
+    t = db.getDailyRewardTime("☢Ƀu₹₦€₹$☢", 786033389751762944)
+    print(t)
+    #print(db.getLeaderboard('☢Ƀu₹₦€₹$☢', 10))
+    #print(db.betPlaced('☢Ƀu₹₦€₹$☢',420058166651256842 , 1, "coinflip", 2))
     #db.createTable('TEST')
     #db.dropTable('bottesting')
     #data = db.selectAll('guilds')

@@ -1,16 +1,3 @@
-06 Jan 21 20:49:31:discord.client:logging in using static token
-06 Jan 21 20:49:32:discord.gateway:Shard ID None has sent the IDENTIFY payload.
-06 Jan 21 20:49:32:discord.gateway:Shard ID None has connected to Gateway: ["gateway-prd-main-87qv",{"micros":137644,"calls":["discord-sessions-prd-2-103",{"micros":133687,"calls":["start_session",{"micros":122222,"calls":["api-prd-main-x0fw",{"micros":101983,"calls":["get_user",{"micros":12117},"add_authorized_ip",{"micros":9461},"get_guilds",{"micros":15728},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":8854,"calls":[]}]}]}] (Session ID: 7fc7a3cb5b227bd8e8c6f27c32d4b8ac).
-06 Jan 21 20:49:34:root:☢ɃU₹₦€₹$☢: 🤖commands: AlwaysOnDude#2603: AlwaysOnDude: @everyone
-06 Jan 21 20:50:08:root:☢ɃU₹₦€₹$☢: bot-testing: w0ch4#1238: w0ch4: .coinflip 1000
-06 Jan 21 20:50:09:root:☢ɃU₹₦€₹$☢: bot-testing: AlwaysOnDude#2603: AlwaysOnDude: 
-06 Jan 21 20:50:13:root:☢ɃU₹₦€₹$☢: w0ch4#1238 gained 1 points
-06 Jan 21 20:50:13:root:☢ɃU₹₦€₹$☢: bot-testing: AlwaysOnDude#2603: AlwaysOnDude: 
-06 Jan 21 20:50:47:root:☢ɃU₹₦€₹$☢: bot-testing: w0ch4#1238: w0ch4: .coinflip 1000
-06 Jan 21 20:50:47:root:☢ɃU₹₦€₹$☢: bot-testing: AlwaysOnDude#2603: AlwaysOnDude: 
-06 Jan 21 20:50:50:root:☢ɃU₹₦€₹$☢: w0ch4#1238 gained 1 points
-06 Jan 21 20:50:50:root:☢ɃU₹₦€₹$☢: bot-testing: AlwaysOnDude#2603: AlwaysOnDude: 
-06 Jan 21 20:51:17:discord.client:Cleaning up tasks.
-06 Jan 21 20:51:17:discord.client:Cleaning up after 2 tasks.
-06 Jan 21 20:51:17:discord.client:All tasks finished cancelling.
-06 Jan 21 20:51:17:discord.client:Closing the event loop.
+03 Aug 21 14:06:49:discord.client:logging in using static token
+03 Aug 21 14:06:50:discord.gateway:Shard ID None has sent the IDENTIFY payload.
+03 Aug 21 14:06:50:discord.gateway:Shard ID None has connected to Gateway: ["gateway-prd-main-dhqd",{"micros":128455,"calls":["discord-sessions-green-prd-2-27",{"micros":116411,"calls":["start_session",{"micros":50973,"calls":["api-prd-main-5mll",{"micros":43318,"calls":["get_user",{"micros":3120},"add_authorized_ip",{"micros":4534},"get_guilds",{"micros":5213},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":30119,"calls":[]}]}]}] (Session ID: 266d2b5708fd7e209882e930d689b669).
