@@ -224,13 +224,14 @@ class Economy(commands.Cog):
                 points += reward-1
                 self.db.setPoints(message.guild.name, payload.member.id, points)
                 self.db.close_connection()
-                await message.edit(f":bank:: :gift: {payload.member.mention} got the random drop of **{reward}** coins:moneybag: ")
+                await message.clear_reactions()
+                await message.edit(content=f":bank:: :gift: {payload.member.mention} got the random drop of **{reward}** coins:moneybag: ", embed=None)
             
 
     @tasks.loop(seconds=3600.0)
     async def reward(self):
         for guild in self.client.guilds:
-            if random.random() < 0.10:
+            if random.random() < 0.40:
                 await self.spawn_reward(guild)
 
     @reward.before_loop
