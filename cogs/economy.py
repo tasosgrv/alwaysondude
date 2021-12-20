@@ -2,10 +2,17 @@ import discord
 import math
 import random
 import re
+
+from discord_components.dpy_overrides import ComponentMessage
 import database
 import pprint as debug
 from datetime import datetime, timedelta
 from discord.ext import tasks, commands
+from discord_components import (
+    Button,
+    ButtonStyle,
+    component,
+)
 
 class Economy(commands.Cog):
     def __init__(self, client):
@@ -105,7 +112,7 @@ class Economy(commands.Cog):
             return
 
         members = await ctx.guild.fetch_members(limit=150).flatten()
-        members = list(filter(lambda x: x.bot is False, members))
+        members = list(filter(lambda x: x.bot is False and x.id!=ctx.author.id, members))
 
         if number_of_members > len(members):
             await ctx.channel.send(f":bank:: :x: **Τhere are not so many members in this server**")
@@ -184,6 +191,32 @@ class Economy(commands.Cog):
 #===============RANDOM DROPS===================================================================================================
     async def spawn_reward(self, guild):
 
+        async def reward_callback(interaction):
+            try:
+                reward = float(re.search(r'\d+', interaction.message.embeds[0].fields[0].name).group()) #get the reward points of the embed message
+            except AttributeError:
+                return
+            except IndexError:
+                return
+
+            self.db.connect()
+            points = self.db.getPoints(interaction.message.guild.name, interaction.user.id)
+            points += reward-1
+            self.db.setPoints(interaction.message.guild.name, interaction.user.id, points)
+            self.db.close_connection()
+            embed = discord.Embed(title = f"🎉 {interaction.user.name}  got the reward! 🎁",
+                    color= interaction.user.color,
+                    timestamp=datetime.utcnow())
+            embed.add_field(name= "**" + self.reward_points[0] + "** coins:moneybag:" ,
+                            value=f"{interaction.user.mention} got the random drop of **{reward}** coins:moneybag: ",
+                            inline=False
+                            )
+            embed.set_footer(text=f'Interaction by: {interaction.user.name}', icon_url=interaction.user.avatar_url)
+
+            #del interaction.message.components[0]
+            await interaction.edit_origin(content="", embed=embed, components=[])
+
+
         rewards = [
                     ['25', (205, 127, 50)],
                     ['250', (192, 192, 192)],
@@ -201,31 +234,14 @@ class Economy(commands.Cog):
         embed.set_footer(text=f'Requested by: {self.client.user.name}', icon_url=self.client.user.avatar_url)
 
         channel = random.choice(guild.text_channels)
-        r = await channel.send('@everyone', embed=embed)
-        await r.add_reaction("🎁")
-
-    @commands.Cog.listener() 
-    async def on_raw_reaction_add(self, payload):
-        if payload.member != self.client.user:
-            
-            channel = self.client.get_channel(payload.channel_id)
-            message = await channel.fetch_message(payload.message_id)
-            
-            try:
-                reward = float(re.search(r'\d+', message.embeds[0].fields[0].name).group()) #get the reward points of the embed message
-            except AttributeError:
-                return
-            except IndexError:
-                return
-
-            if payload.emoji.name=="🎁" and payload.event_type=="REACTION_ADD":
-                self.db.connect()
-                points = self.db.getPoints(message.guild.name, payload.member.id)
-                points += reward-1
-                self.db.setPoints(message.guild.name, payload.member.id, points)
-                self.db.close_connection()
-                await message.clear_reactions()
-                await message.edit(content=f":bank:: :gift: {payload.member.mention} got the random drop of **{reward}** coins:moneybag: ", embed=None)
+        await channel.send(
+            content=f"@everyone" , 
+            embed=embed,
+            components=[
+                self.client.components_manager.add_callback(
+                    Button(style=ButtonStyle.gray, label=f"Get {self.reward_points[0]} coins", id="reward", emoji="🎁"), reward_callback),
+            ],
+        )
             
 
     @tasks.loop(seconds=3600.0)

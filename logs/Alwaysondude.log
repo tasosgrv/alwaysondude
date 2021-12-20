@@ -1,3 +1,0 @@
-03 Aug 21 14:06:49:discord.client:logging in using static token
-03 Aug 21 14:06:50:discord.gateway:Shard ID None has sent the IDENTIFY payload.
-03 Aug 21 14:06:50:discord.gateway:Shard ID None has connected to Gateway: ["gateway-prd-main-dhqd",{"micros":128455,"calls":["discord-sessions-green-prd-2-27",{"micros":116411,"calls":["start_session",{"micros":50973,"calls":["api-prd-main-5mll",{"micros":43318,"calls":["get_user",{"micros":3120},"add_authorized_ip",{"micros":4534},"get_guilds",{"micros":5213},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":30119,"calls":[]}]}]}] (Session ID: 266d2b5708fd7e209882e930d689b669).
