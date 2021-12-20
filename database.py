@@ -306,7 +306,7 @@ class Database:
                 receiver_new = cursor.fetchone()[0] + points
                 cursor.execute(f"UPDATE {table} SET points='%s' WHERE id='%s'", (receiver_new, receiver_id,))
                 self.connection.commit()
-            except Exception(e):
+            except Exception as e:
                 print(e)
                 return False
 

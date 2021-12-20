@@ -90,9 +90,14 @@ class MyEvents(commands.Cog):
         logging.info(f"{message.guild.name}: {message.channel}: {message.author}: {message.author.name}: {message.content}")
         print(f"{message.channel}: {message.author}: {message.author.name}: {message.content}")
         '''
-
-        if message.author.bot:
+        if message.author.bot: # if the message was sent from any bot
             return
+        
+        if not message.guild: #if a user send a private message to the bot
+            await message.reply("Use this bot only on Servers")
+            return
+
+
         
         if not message.content.startswith('.') and len(message.content)<211:
             self.db.connect()
@@ -150,13 +155,17 @@ class MyEvents(commands.Cog):
         await self.client.wait_until_ready()
 
 
-
-    '''
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send(f"**:x: Command '{str(ctx.message.content).strip('.')}' is not found**")
-    '''
+            await ctx.send(
+                embed=discord.Embed(
+                    title=f":x: Command not found",
+                    description=f"Command **'{str(ctx.message.content).strip('.')}'** is not found",
+                    color=discord.Color.red(),
+                    )
+                )
+
 
 
 def setup(client):
