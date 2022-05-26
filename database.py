@@ -9,7 +9,7 @@ import datetime
 class Database:
     
     _DATABASE_URL = ''
-    _HEROKU = True
+    _HEROKU = False
     _dbparams = {}
 
     def __init__(self):

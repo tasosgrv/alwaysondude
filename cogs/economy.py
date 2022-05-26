@@ -1,18 +1,19 @@
 import discord
-import math
-import random
-import re
-
-from discord_components.dpy_overrides import ComponentMessage
-import database
-import pprint as debug
-from datetime import datetime, timedelta
 from discord.ext import tasks, commands
 from discord_components import (
     Button,
     ButtonStyle,
-    component,
 )
+    
+
+import math
+import random
+import re
+import database
+import pprint as debug
+from datetime import datetime, timedelta
+
+
 
 class Economy(commands.Cog):
     def __init__(self, client):
