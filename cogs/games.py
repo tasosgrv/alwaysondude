@@ -32,7 +32,7 @@ class Games(commands.Cog):
             if interaction.user.id==ctx.author.id:
 
                 coinflip = self.game.play(interaction.component.custom_id)
-                self.db.connect()
+
                 player_points = self.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
                 if coinflip:    
                     self.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet, ctx.author.id)
@@ -63,7 +63,6 @@ class Games(commands.Cog):
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                     
 
-                self.db.close_connection()
                 await interaction.edit_origin(embed=embed, components=interaction.message.components)
 
 
@@ -77,9 +76,9 @@ class Games(commands.Cog):
             await ctx.channel.send(f":coin: : :no_entry: **The amount has to be an non-negative number**")
             return
 
-        self.db.connect()
+
         points = self.db.getPoints(ctx.guild.name, ctx.author.id)
-        self.db.close_connection()
+
 
         if self.bet>points:
             await ctx.channel.send(f":coin: : :x: **Insufficient amount**")
@@ -118,7 +117,7 @@ class Games(commands.Cog):
         async def slot_callback(interaction):
 
             if interaction.user.id==ctx.author.id:
-                self.db.connect()
+
                 player_points = self.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
 
                 if interaction.custom_id=="spin" and self.bet<=player_points:
@@ -177,7 +176,7 @@ class Games(commands.Cog):
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                     
                 
-            self.db.close_connection()
+
             await interaction.edit_origin(embed=embed, components=interaction.message.components)
 
         try:    
@@ -190,9 +189,8 @@ class Games(commands.Cog):
             await ctx.channel.send(f":slot_machine: : :no_entry: **The amount has to be a number over 0.10**")
             return
 
-        self.db.connect()
+
         points = self.db.getPoints(ctx.guild.name, ctx.author.id)
-        self.db.close_connection()
 
         if self.bet>points:
             await ctx.channel.send(f":slot_machine: : :x: **Insufficient amount**")
@@ -231,7 +229,7 @@ class Games(commands.Cog):
         
         async def ftk_callback(interaction):
             if interaction.user.id==ctx.author.id:
-                self.db.connect()
+
                 player_points = self.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
                 ftk = self.game.play(interaction.custom_id)
                 contnt = f"{str(' '.join(map(str, ftk[1])))}"
@@ -251,7 +249,7 @@ class Games(commands.Cog):
                     embed.add_field(name="You lost", value="**"+str(self.bet)+"** :moneybag:", inline=False)
                     embed.add_field(name='Your Balance', value="**"+str(player_points-self.bet)+"** :moneybag:", inline=False)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
-                self.db.close_connection()
+
             
             for component in interaction.message.components:
                 for button in component:
@@ -270,9 +268,9 @@ class Games(commands.Cog):
             await ctx.channel.send(f"<:cardSpadesK:853266560361824256>  :no_entry: **The amount has to be a number over 1**")
             return
 
-        self.db.connect()
+
         points = self.db.getPoints(ctx.guild.name, ctx.author.id)
-        self.db.close_connection()
+
 
         if self.bet>points:
             await ctx.channel.send(f"<:cardSpadesK:853266560361824256> :x: **Insufficient amount**")
@@ -324,9 +322,9 @@ class Games(commands.Cog):
             await ctx.channel.send(f"**Dice :no_entry: The amount has to be a number over 1**")
             return
 
-        self.db.connect()
+
         points = self.db.getPoints(ctx.guild.name, ctx.author.id)
-        self.db.close_connection()
+
 
         if self.bet>points:
             await ctx.channel.send(f"**Dice :x: Insufficient amount**")
@@ -344,7 +342,7 @@ class Games(commands.Cog):
             '6':'<:dicered6:832673662205296641>'
         }
 
-        self.db.connect()
+
         if results[0]>1:
             self.db.transferPoints(ctx.guild.name, self.client.user.id, results[0]*self.bet, ctx.author.id)
             embed = discord.Embed(title = f"Dice for {ctx.author.name}",
@@ -364,7 +362,7 @@ class Games(commands.Cog):
         embed.add_field(name="You won:", value="**"+str(float(self.bet*results[0]))+"**:moneybag:", inline=True)
         embed.add_field(name="Your Balance:", value="**"+str(self.db.getPoints(ctx.guild.name, ctx.author.id))+"**:moneybag:", inline=True)
         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
-        self.db.close_connection()
+
         r = await ctx.message.reply(embed=embed)
 
 
@@ -386,9 +384,8 @@ class Games(commands.Cog):
         async def bj_callback(interaction):
             if interaction.user.id==ctx.author.id:
 
-                self.db.connect()
                 player_points = self.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
-                self.db.close_connection()
+
 
                 if interaction.custom_id=="hit":
                     
@@ -431,9 +428,9 @@ class Games(commands.Cog):
 
                 if interaction.custom_id=="double":
                     self.bet = self.bet*2
-                    self.db.connect()
+
                     self.db.transferPoints(ctx.guild.name,  ctx.author.id, self.bet, self.client.user.id)
-                    self.db.close_connection()
+
                     
                     if self.game.hit():
                         interaction.custom_id="stand"
@@ -461,9 +458,9 @@ class Games(commands.Cog):
 
                     mullti = self.game.stand()
                     if mullti==2:
-                        self.db.connect()
+
                         self.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet*2, ctx.author.id)
-                        self.db.close_connection()
+
                         embed = discord.Embed(title = f"BlackJack : {ctx.author.name} :white_check_mark:WON with {str(self.game.player_score)}",
                             color=discord.Color.green(),
                             timestamp=datetime.utcnow())
@@ -473,9 +470,9 @@ class Games(commands.Cog):
                         embed.add_field(name='Balance', value="**"+str(player_points+self.bet*2)+"**:moneybag:", inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                     elif mullti==1: #draw
-                        self.db.connect()
+
                         self.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet, ctx.author.id)
-                        self.db.close_connection()
+
                         embed = discord.Embed(title = f"BlackJack : {ctx.author.name} DRAW with {str(self.game.player_score)}",
                             color=discord.Color.gold(),
                             timestamp=datetime.utcnow())
@@ -510,9 +507,9 @@ class Games(commands.Cog):
             await ctx.channel.send(f"**BlackJack :no_entry: The amount has to be a number over 1**")
             return
 
-        self.db.connect()
+
         points = self.db.getPoints(ctx.guild.name, ctx.author.id)
-        self.db.close_connection()
+
 
         if self.bet>points:
             await ctx.channel.send(f"**BlackJack :x: Insufficient amount**")
@@ -520,14 +517,14 @@ class Games(commands.Cog):
 
         self.game = games.BlackJack(bet, ctx.author)
 
-        self.db.connect()
+
         self.db.transferPoints(ctx.guild.name,  ctx.author.id, self.bet, self.client.user.id)
-        self.db.close_connection()
+
         
         if self.game.play()==21:
-            self.db.connect()
+
             self.db.transferPoints(ctx.guild.name, self.client.user.id, 2.2*self.bet, ctx.author.id)
-            self.db.close_connection()
+
             embed = discord.Embed(title = f"BlackJack: {ctx.author.name} :white_check_mark:WON with BLACK JACK",
                         color= discord.Color.green(),
                         timestamp=datetime.utcnow())

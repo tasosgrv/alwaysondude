@@ -23,7 +23,6 @@ class MyEvents(commands.Cog):
 
         await self.client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=f'your bets 💰 in {len(self.client.guilds)} servers'))
         
-        self.db.connect()
         for guild in self.client.guilds:
             self.db.insert('guilds', guild.id, guild.name, guild.chunked, guild.member_count, guild.owner_id)
             self.db.createTable(guild.name)
@@ -31,22 +30,19 @@ class MyEvents(commands.Cog):
                 if member.id == self.client.user.id:
                    self.db.insert(member.guild.name , member.id, member.name, member.discriminator, member.bot, member.nick, True, 5000, member.guild.id, "2000-01-01 00:00:00.00") 
                 self.db.insert(member.guild.name , member.id, member.name, member.discriminator, member.bot, member.nick, True, 0, member.guild.id, "2000-01-01 00:00:00.00")
-        self.db.close_connection()
+    
         print(f'Database update complete')   
 
 
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        self.db.connect()
         self.db.insert(member.guild.name, member.id, member.name, member.discriminator, member.bot, member.nick, True, 0, member.guild.id, "2000-01-01 00:00:00.00")
-        self.db.close_connection()
+
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, member):
-        self.db.connect()
         self.db.delete(guild.name, member.id) #deletes the user from the guild's users table
-        self.db.close_connection()
 
 
     @commands.Cog.listener()
@@ -55,14 +51,14 @@ class MyEvents(commands.Cog):
         When the bot joins a new server\n
         Inserts the new guild in database\nCreates the table for the users and inserts the users
         '''
-        self.db.connect()
+
         self.db.insert('guilds', guild.id, guild.name, guild.chunked, guild.member_count, guild.owner_id)
         self.db.createTable(guild.name)
         for member in guild.members:
             if member.id == self.client.user.id:
                 self.db.insert(member.guild.name, member.id, member.name, member.discriminator, member.bot, member.nick, True, 5000, member.guild.id, "2000-01-01 00:00:00") 
             self.db.insert(guild.name, member.id, member.name, member.discriminator, member.bot, member.nick, True, 10, member.guild.id, "2000-01-01 00:00:00")
-        self.db.close_connection()
+
         print(f"Joined in {guild.name}")
         logging.info(f"Joined in {guild.name}")
 
@@ -72,10 +68,10 @@ class MyEvents(commands.Cog):
         When the bot leaves a server\n
         The guild deleted from the database
         '''
-        self.db.connect()
+
         self.db.delete('guilds', guild.id)
         self.db.dropTable(guild.name)
-        self.db.close_connection()
+
         print(f"{guild.name} removed me ")
         logging.info(f"{guild.name} removed me ")
 
@@ -100,7 +96,7 @@ class MyEvents(commands.Cog):
 
         
         if not message.content.startswith('.') and len(message.content)<211:
-            self.db.connect()
+
             points = self.db.getPoints(message.guild.name, message.author.id)
             gained_points = len(message.content)*0.12
             points += gained_points
@@ -111,7 +107,7 @@ class MyEvents(commands.Cog):
                 print(f"{message.guild.name}: {message.author} gained {gained_points} points")
                 logging.info(f"{message.guild.name}: {message.author} gained {gained_points} points")
             
-            self.db.close_connection()
+            
 
         if "hello" in message.content.lower():
             await message.channel.send(f"Hello {message.author.mention}, i am your digital friend {self.client.user.mention}, Do not panic i am peaceful. Mr. w0ch4 is my master!")
@@ -124,11 +120,9 @@ class MyEvents(commands.Cog):
     async def on_reaction_add(self, reaction, user):
         if user.bot or reaction.message.author==self.client.user: #if the reaction made from a bot or if the reaction made to the client
             return
-        self.db.connect()
         points = self.db.getPoints(user.guild.name, user.id)
         gained_points = 1
         self.db.setPoints(user.guild.name, user.id, points+gained_points)
-        self.db.close_connection()
         print(f"{user.guild.name}: {user} gained {gained_points} points")
         logging.info(f"{user.guild.name}: {user} gained {gained_points} points")
 
@@ -136,11 +130,10 @@ class MyEvents(commands.Cog):
     async def on_reaction_remove(self, reaction, user):
         if user.bot or reaction.message.author==self.client.user:
             return
-        self.db.connect()
+
         points = self.db.getPoints(user.guild.name, user.id)
         remove_points = 1
         self.db.setPoints(user.guild.name, user.id, points-remove_points)
-        self.db.close_connection()
         print(f"{user.guild.name}: {user} lost {remove_points} points")
         logging.info(f"{user.guild.name}: {user} lost {remove_points} points")
 

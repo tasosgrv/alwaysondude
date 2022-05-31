@@ -19,9 +19,10 @@ class AlwaysOnDude(commands.Bot):
             "cogs.BasicCommands",
             "cogs.economy",
             "cogs.games",
-            "cogs.myevents"
+            "cogs.myevents",
+            "cogs.adminCommands"
         ]
-
+        
         for cog in self.to_load:
             self.load_cog(cog)
         

@@ -19,7 +19,7 @@ class Database:
             with open(r'data/dbparams.yaml') as file:
                 Database._dbparams = yaml.load(file, Loader=yaml.FullLoader)
 
-    def connect(self):
+    def __connect(self):
         '''
             Sets up the connection with the database\n
             Returns:
@@ -37,6 +37,18 @@ class Database:
                                 )
         return self.connection
 
+    def __close_connection(self):
+        '''
+        Closes the connection with the database\n
+        Return:
+        -----------
+            \tBoolean
+        '''
+        if self.connection.closed != 0: #IF CONNECTION CLOSED
+            return False
+        self.connection.close()
+        return True  
+
     def createTable(self, table):
         '''
             Creates a new table with a given name\n
@@ -47,6 +59,7 @@ class Database:
             ----------- 
                 \tBoolean
         '''
+        self.__connect()
         if not self.connection!=0:
             return None
         table = table.replace(" ", "")
@@ -68,8 +81,10 @@ class Database:
                 self.connection.commit()
             except:
                 print("ERROR on table creation")
+                self.__close_connection()
                 return None
 
+        self.__close_connection()
         return True
 
     def dropTable(self, table):
@@ -82,6 +97,7 @@ class Database:
             -----------
             Boolean
         '''
+        self.__connect()
         if not self.connection!=0:
             return None
         table = table.replace(" ", "")
@@ -91,8 +107,10 @@ class Database:
                 self.connection.commit()
             except:
                 print("ERROR on table creation")
+                self.__close_connection()
                 return None
 
+        self.__close_connection()
         return True
 
     def selectAll(self, table):
@@ -105,9 +123,11 @@ class Database:
             -----------
                 \tA List of tuples or None 
         '''
+        self.__connect()
         if not self.connection!=0:
             return None
         if not table:
+            self.__close_connection()
             return None
         table = table.replace(" ", "")
         with self.connection.cursor() as cursor:
@@ -116,8 +136,10 @@ class Database:
                 self.data = cursor.fetchall()
             except:
                 print("ERROR")
+                self.__close_connection()
                 return None
 
+        self.__close_connection()
         return self.data
 
 
@@ -132,9 +154,11 @@ class Database:
             -----------
                 \tA List of tuples or None 
         '''
+        self.__connect()
         if not self.connection!=0:
             return None
         if not table or not limit:
+            self.__close_connection()
             return None
         if offset is None:
             offset=0
@@ -145,8 +169,10 @@ class Database:
                 self.data = cursor.fetchall()
             except:
                 print("ERROR")
+                self.__close_connection()
                 return None
 
+        self.__close_connection()
         return self.data
 
     def getCirculatingSupply(self, table):
@@ -159,6 +185,7 @@ class Database:
             -----------
                 \tint or None 
         '''
+        self.__connect()
         if not self.connection!=0:
             return None
         table = table.replace(" ", "")
@@ -168,8 +195,10 @@ class Database:
                 self.data = cursor.fetchone()[0]
             except:
                 print("ERROR")
+                self.__close_connection()
                 return None
 
+        self.__close_connection()
         return self.data
 
     def getTotalSupply(self, table):
@@ -182,6 +211,7 @@ class Database:
             -----------
                 \tint or None 
         '''
+        self.__connect()
         if not self.connection!=0:
             return None
         table = table.replace(" ", "")
@@ -191,8 +221,10 @@ class Database:
                 self.data = cursor.fetchone()[0]
             except:
                 print("ERROR")
+                self.__close_connection()
                 return None
 
+        self.__close_connection()
         return self.data
     
     def insert(self, table, *values):
@@ -206,9 +238,11 @@ class Database:
             -----------
                 \tBoolean
         '''
+        self.__connect()
         if not self.connection:
             return False
         if not table or not values:
+            self.__close_connection()
             return False
         table = table.replace(" ", "")
         query = "INSERT INTO "+table+" values("+"%s,"*(len(values)-1)+"%s) ON CONFLICT DO NOTHING"
@@ -218,10 +252,14 @@ class Database:
                 self.connection.commit()
             except psycopg2.errors.UniqueViolation:
                 print(f"DUBLICATE id {values[0]} already exist")
+                self.__close_connection()
                 return False
             except psycopg2.errors.SyntaxError:
                 print(f"INSERT has more expressions than table {table}")
+                self.__close_connection()
                 return False
+        
+        self.__close_connection()
         return True
 
     def getPoints(self, table, member_id):
@@ -234,6 +272,7 @@ class Database:
             -----------
                 \tint or None 
         '''
+        self.__connect()
         if not self.connection!=0:
             return None
         table = table.replace(" ", "")
@@ -243,8 +282,10 @@ class Database:
                 self.data = cursor.fetchone()[0]
             except:
                 print("ERROR")
+                self.__close_connection()
                 return None
-
+        
+        self.__close_connection()
         return self.data
 
     def setPoints(self, table, member_id, points):
@@ -259,11 +300,14 @@ class Database:
             -----------
                 \tBoolean
         '''
+        self.__connect()
         if not self.connection!=0:
             return False
         if not table or not member_id:
+            self.__close_connection()
             return False
         if points<0:
+            self.__close_connection()
             return False 
         table = table.replace(" ", "")
         with self.connection.cursor() as cursor:
@@ -272,8 +316,10 @@ class Database:
                 self.connection.commit()
             except:
                 print("ERROR on update")
+                self.__close_connection()
                 return False
 
+        self.__close_connection()
         return True
 
     def transferPoints(self, table, sender_id, points, receiver_id):
@@ -289,11 +335,14 @@ class Database:
             -----------
                 \tBoolean
         '''
+        self.__connect()
         if not self.connection!=0:
             return False
         if not table or not sender_id or not receiver_id:
+            self.__close_connection()
             return False
         if points<0:
+            self.__close_connection()
             return False
         table = table.replace(" ", "")
         with self.connection.cursor() as cursor:
@@ -308,8 +357,10 @@ class Database:
                 self.connection.commit()
             except Exception as e:
                 print(e)
+                self.__close_connection()
                 return False
 
+        self.__close_connection()
         return True
 
         
@@ -326,12 +377,14 @@ class Database:
             -----------
                 \tBoolean
         '''
-
+        self.__connect()
         if not self.connection!=0:
             return False
         if not table or not game or not member_id:
+            self.__close_connection()
             return False
         if bet_amount<0:
+            self.__close_connection()
             return False
         table = table.replace(" ", "")
         with self.connection.cursor() as cursor:
@@ -345,8 +398,10 @@ class Database:
                 self.connection.commit()
             except Exception as e:
                 print(e)
+                self.__close_connection()
                 return False
 
+        self.__close_connection()
         return True
 
 
@@ -362,14 +417,17 @@ class Database:
             -----------
                 \tBoolean
         '''
+        self.__connect()
         if not self.connection:
             return False
         if not table or not id:
+            self.__close_connection()
             return False
         table = table.replace(" ", "")
         with self.connection.cursor() as cursor:
             cursor.execute(f"DELETE FROM {table} WHERE id=%s", (id,))
             self.connection.commit()
+        self.__close_connection()
         return True
 
 
@@ -385,11 +443,14 @@ class Database:
             -----------
                 \tBoolean
         '''
+        self.__connect()
         if not self.connection:
             return False
         if not table or not member_id:
+            self.__close_connection()
             return False
         if not time:
+            self.__close_connection()
             return False 
         table = table.replace(" ", "")
         with self.connection.cursor() as cursor:
@@ -398,8 +459,10 @@ class Database:
                 self.connection.commit()
             except Exception as e:
                 print(f"ERROR on setDailyRewardTime: {e}")
+                self.__close_connection()
                 return False
 
+        self.__close_connection()
         return True
 
     def getDailyRewardTime(self, table, member_id):
@@ -412,9 +475,11 @@ class Database:
             -----------
                 \tdatetime or None 
         '''
+        self.__connect()
         if not self.connection:
             return None
         if not table or not member_id:
+            self.__close_connection()
             return False
         table = table.replace(" ", "")
         with self.connection.cursor() as cursor:
@@ -423,32 +488,93 @@ class Database:
                 self.data = cursor.fetchone()[0]
             except Exception as e:
                 print(f"ERROR on getDailyRewardTime: {e}")
+                self.__close_connection()
                 return None
 
+        self.__close_connection()
         return self.data
 
 
-    def close_connection(self):
+    def setGuildValue(self, guild_id, column_name, value):
         '''
-        Closes the connection with the database\n
-        Return:
-        -----------
-            \tBoolean
+            Sets the time of the claimed daily reward for a certain member into the database\n
+            Parameters:
+            -----------
+                \tguild_id: int\n
+                \tcolumn_name: str (e.g. prefix, earningrate ,drops, daily_reward, currency_name, currency_emmote)\n
+                \tvalue: str for prefix, currency_name, currency_emote,\n
+                \t\t bool for drops,\n
+                \t\t float for earningrate, daily_reward\n
+            Returns:
+            -----------
+                \tBoolean
         '''
-        if self.connection.closed != 0: #IF CONNECTION CLOSED
+        self.__connect()
+        if not self.connection:
             return False
-        self.connection.close()
-        return True  
+        if not guild_id or not column_name or not value:
+            self.__close_connection()
+            return False
+
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute(f"UPDATE guilds SET {column_name}=%s WHERE id='%s'", (value, guild_id,))
+                self.connection.commit()
+            except Exception as e:
+                print(f"ERROR the value {value} didn't set to column {column_name}: {e}")
+                self.__close_connection()
+                return False
+
+        self.__close_connection()
+        return True
+
+
+
+    def getGuildValue(self ,guild_id ,column_name):
+        '''
+            Returns the value of a selected column from guilds table\n
+            Parameters:
+            -----------
+                \tguild_id: int\n
+                \tcolumn_name: str (e.g. prefix, earningrate ,drops, daily_reward, currency_name, currency_emmote)\n
+            Returns:
+            -----------
+                \t str for prefix, currency_name, currency_emote\n
+                \t bool for drops\n
+                \t float for earningrate, daily_reward\n
+                \t None on error\n
+        '''
+        self.__connect()
+        if not self.connection:
+            return None
+        if not guild_id or not column_name:
+            self.__close_connection()
+            return None
+
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute(f"SELECT {column_name} FROM guilds WHERE id='%s'", (guild_id,))
+                self.data = cursor.fetchone()[0]
+            except Exception as e:
+                print(f"ERROR couldnt get the value: {e}")
+                self.__close_connection()
+                return None
+
+        self.__close_connection()
+        return self.data
 
 
 if __name__=="__main__":
     db = Database()
-    db.connect()
 
     
-    db.setDailyRewardTime("☢Ƀu₹₦€₹$☢", 786033389751762944, datetime.datetime.now())
-    t = db.getDailyRewardTime("☢Ƀu₹₦€₹$☢", 786033389751762944)
-    print(t)
+    db.setGuildValue(420059002756399104, 'currency_name', 'ρούβλια')
+
+    cn = db.getGuildValue(420059002756399104, 'currency_name')
+    print(cn)
+    #db.setDailyRewardTime("☢Ƀu₹₦€₹$☢", 786033389751762944, datetime.datetime.now())
+    #t = db.getDailyRewardTime("☢Ƀu₹₦€₹$☢", 786033389751762944)
+    #print(t)
     #print(db.getLeaderboard('☢Ƀu₹₦€₹$☢', 10))
     #print(db.betPlaced('☢Ƀu₹₦€₹$☢',420058166651256842 , 1, "coinflip", 2))
     #db.createTable('TEST')
@@ -459,4 +585,3 @@ if __name__=="__main__":
     #db.setPoints('☢Ƀu₹₦€₹$☢', 729270168030543954, 84)
     #data = db.selectCol('guilds', 'test')
     #debug.pprint(data)
-    db.close_connection()

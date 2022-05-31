@@ -23,11 +23,7 @@ class Economy(commands.Cog):
 
     @commands.command(aliases=['bal', 'b'])
     async def balance(self, ctx):
-        async with ctx.message.channel.typing():
-            self.db.connect()
-            points = self.db.getPoints(ctx.guild.name, ctx.author.id)
-            self.db.close_connection()
-        await ctx.send(f":bank: {ctx.author.mention} has **{points}** coins:moneybag:")
+        await ctx.message.reply(f":bank: {ctx.author.mention} has **{self.db.getPoints(ctx.guild.name, ctx.author.id)}** coins:moneybag:")
 
     @commands.command(aliases=['leadr', 'l'])
     async def leaderboard(self, ctx):
@@ -35,9 +31,9 @@ class Economy(commands.Cog):
             embed = discord.Embed(title = f":bank: :bar_chart: Coins Leaderboard for {ctx.guild.name}",
                             color= ctx.author.color,
                             timestamp=datetime.utcnow())
-            self.db.connect()
+
             leaderboard = self.db.getLeaderboard(ctx.guild.name, 10, 0)
-            self.db.close_connection()
+
             standings = ''
             for i,item in enumerate(leaderboard):
                 standings += "" + str(i+1) + ". " + str(item[0]) + ": **" + str(item[1]) + "**\n"    
@@ -51,10 +47,10 @@ class Economy(commands.Cog):
     @commands.command()
     async def supply(self, ctx):
         async with ctx.message.channel.typing():
-            self.db.connect()
+
             circ_supply = self.db.getCirculatingSupply(ctx.guild.name)
             max_supply = self.db.getTotalSupply(ctx.guild.name)
-            self.db.close_connection()
+
         await ctx.send(f":bank:: :bar_chart: **{ctx.guild.name}** has **{circ_supply}** coin:moneybag: Circulating Supply and **{max_supply}** coins:moneybag: Total supply")
 
     @commands.command()
@@ -69,9 +65,9 @@ class Economy(commands.Cog):
                 await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non-negative number**")
                 return
             
-            self.db.connect()
+
             sender_amount= self.db.getPoints(ctx.guild.name, ctx.author.id)
-            self.db.close_connection()
+
             if sender_amount<payment:
                 await ctx.channel.send(f":bank:: :x: **Insufficient amount**")
                 return
@@ -79,9 +75,9 @@ class Economy(commands.Cog):
             user = int(member.strip('<!@>'))
             member = await ctx.guild.fetch_member(user)
 
-            self.db.connect()
+
             self.db.transferPoints(ctx.guild.name, ctx.author.id, payment, member.id)
-            self.db.close_connection()
+
 
             await ctx.channel.send(f":bank:: :white_check_mark: {ctx.author.mention} gave **{payment}** coins:moneybag: to {member.mention}")
 
@@ -105,9 +101,9 @@ class Economy(commands.Cog):
             await ctx.channel.send(f":bank:: :no_entry: **The amount has to be an integer non-negative number**")
             return
 
-        self.db.connect()
+
         sender_amount= self.db.getPoints(ctx.guild.name, ctx.author.id)
-        self.db.close_connection()
+
         if sender_amount<donation:
             await ctx.channel.send(f":bank:: :x: **Insufficient amount**")
             return
@@ -132,14 +128,14 @@ class Economy(commands.Cog):
                         timestamp=datetime.utcnow())
         respond = ""
 
-        self.db.connect()
+
         self.db.setPoints(ctx.guild.name, ctx.author.id, sender_amount-donation) #decrease sender's points
         for winner in winners:
             recipient_amount= self.db.getPoints(ctx.guild.name, winner.id) 
             self.db.setPoints(ctx.guild.name, winner.id, recipient_amount+donation_share) #increase recipient's points
             respond += "\n"+ str(winner.mention ) + " got **" + str(donation_share) + "** coins:moneybag:"
         
-        self.db.close_connection()
+
 
         embed.add_field(name='Winners', 
                         value=respond,
@@ -155,7 +151,7 @@ class Economy(commands.Cog):
 
     @commands.command(aliases=['dr'])
     async def daily(self, ctx):
-        self.db.connect()
+
         lastclaim = self.db.getDailyRewardTime(ctx.guild.name, ctx.author.id)
         now = datetime.now()
         
@@ -184,7 +180,7 @@ class Economy(commands.Cog):
             embed.add_field(name=':hourglass_flowing_sand: Next claim after', value=f"**{hours:.0f}** hours **{minutes:.0f}** minutes **{seconds:.0f}** seconds", inline=False)
             embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
 
-        self.db.close_connection()
+
         await ctx.message.reply(embed=embed)
 
 
@@ -200,11 +196,11 @@ class Economy(commands.Cog):
             except IndexError:
                 return
 
-            self.db.connect()
+
             points = self.db.getPoints(interaction.message.guild.name, interaction.user.id)
             points += reward-1
             self.db.setPoints(interaction.message.guild.name, interaction.user.id, points)
-            self.db.close_connection()
+
             embed = discord.Embed(title = f"🎉 {interaction.user.name}  got the reward! 🎁",
                     color= interaction.user.color,
                     timestamp=datetime.utcnow())
