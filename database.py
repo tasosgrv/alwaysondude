@@ -568,9 +568,9 @@ if __name__=="__main__":
     db = Database()
 
     
-    db.setGuildValue(420059002756399104, 'currency_name', 'ρούβλια')
+    db.setGuildValue(420059002756399104, 'drops', "True")
 
-    cn = db.getGuildValue(420059002756399104, 'currency_name')
+    cn = db.getGuildValue(420059002756399104, 'drops')
     print(cn)
     #db.setDailyRewardTime("☢Ƀu₹₦€₹$☢", 786033389751762944, datetime.datetime.now())
     #t = db.getDailyRewardTime("☢Ƀu₹₦€₹$☢", 786033389751762944)

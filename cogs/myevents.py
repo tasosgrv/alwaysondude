@@ -98,7 +98,7 @@ class MyEvents(commands.Cog):
         if not message.content.startswith('.') and len(message.content)<211:
 
             points = self.db.getPoints(message.guild.name, message.author.id)
-            gained_points = len(message.content)*0.12
+            gained_points = len(message.content)*float(self.db.getGuildValue(message.guild.id, 'earning_rate'))
             points += gained_points
 
             if gained_points>1:
@@ -151,10 +151,18 @@ class MyEvents(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send(
+            await ctx.message.reply(
                 embed=discord.Embed(
                     title=f":x: Command not found",
                     description=f"Command **'{str(ctx.message.content).strip('.')}'** is not found",
+                    color=discord.Color.red(),
+                    )
+                )
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.message.reply(
+                embed=discord.Embed(
+                    title=":gear:: :no_entry_sign: You are not allowed to run this command",
+                    description="You have to be an administrator on this server to use this command",
                     color=discord.Color.red(),
                     )
                 )

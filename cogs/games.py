@@ -41,10 +41,10 @@ class Games(commands.Cog):
                                             color= discord.Color.green(),
                                             timestamp=datetime.utcnow())
                     embed.add_field(name='You won', 
-                                    value=f"**{str(self.bet)}** coins:moneybag:", 
+                                    value=f"**{str(self.bet)}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
                                     inline=False)
                     embed.add_field(name='Your new balance', 
-                                    value=f"**{str(player_points+self.bet)}** coins:moneybag:", 
+                                    value=f"**{str(player_points+self.bet)}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
                                     inline=False)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                               
@@ -55,10 +55,10 @@ class Games(commands.Cog):
                                             color= discord.Color.red(),
                                             timestamp=datetime.utcnow())
                     embed.add_field(name='You lost', 
-                                    value=f"**{str(self.bet)}** coins:moneybag:", 
+                                    value=f"**{str(self.bet)}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
                                     inline=False)
                     embed.add_field(name='Your new balance', 
-                                    value=f"**{str(player_points-self.bet)}** coins:moneybag:", 
+                                    value=f"**{str(player_points-self.bet)}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
                                     inline=False)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                     
@@ -103,10 +103,10 @@ class Games(commands.Cog):
     @coinflip.error
     async def coinflip_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(
+            await ctx.message.reply(
                 embed=discord.Embed(
                     title=":coin:Coinflip : :no_entry: An argument is missing",
-                    description="Command syntax: `.coinflip [bet_amount]`",
+                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}coinflip [bet_amount]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -114,6 +114,8 @@ class Games(commands.Cog):
     
     @commands.command(aliases=['sl'])
     async def slot(self, ctx, bet):
+        curr_name = self.db.getGuildValue(ctx.guild.id ,'currency_name')
+        curr_emote = self.db.getGuildValue(ctx.guild.id ,'currency_emote')
         async def slot_callback(interaction):
 
             if interaction.user.id==ctx.author.id:
@@ -133,8 +135,8 @@ class Games(commands.Cog):
                             color= ctx.author.color,
                             timestamp=datetime.utcnow())
                     embed.add_field(name='Spin: '+str(self.game.counter), value=str(' '.join(map(str, slot[1]))), inline=False)
-                    embed.add_field(name='Balance', value="**"+str(self.db.getPoints(ctx.guild.name, ctx.author.id))+"**:moneybag:", inline=True)
-                    embed.add_field(name='You Won', value="**"+str(float(slot[0])*float(self.bet))+"**:moneybag:", inline=True)
+                    embed.add_field(name='Balance', value="**"+str(self.db.getPoints(ctx.guild.name, ctx.author.id))+f"**{curr_emote}", inline=True)
+                    embed.add_field(name='You Won', value="**"+str(float(slot[0])*float(self.bet))+f"**{curr_emote}", inline=True)
                     embed.add_field(name='Multiplier', value=str(slot[0])+"x", inline=True)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                       
@@ -148,13 +150,13 @@ class Games(commands.Cog):
                             color= ctx.author.color,
                             timestamp=datetime.utcnow())
                     embed.add_field(name=':x: **Insufficient amount**', 
-                                    value='You dont have **'+str(self.bet)+'** coins:moneybag: to play the next spin', 
+                                    value='You dont have **'+str(self.bet)+f'** {curr_name}{curr_emote} to play the next spin', 
                                     inline=False)
                     embed.add_field(name='Played', 
-                                    value="**"+str(self.game.counter)+"** spins\n**"+str(self.game.counter*self.bet)+"** coins :moneybag:", 
+                                    value="**"+str(self.game.counter)+"** spins\n**"+str(self.game.counter*self.bet)+f"** {curr_name}{curr_emote}", 
                                     inline=True)
                     embed.add_field(name='Profit/Loss', 
-                                    value="**"+str(self.game.profit_loss)+"** coins :moneybag:", 
+                                    value="**"+str(self.game.profit_loss)+f"** {curr_name}{curr_emote}", 
                                     inline=True)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
             
@@ -168,10 +170,10 @@ class Games(commands.Cog):
                             color= ctx.author.color,
                             timestamp=datetime.utcnow())
                     embed.add_field(name='Played', 
-                                    value="**"+str(self.game.counter)+"** spins\n**"+str(self.game.counter*self.bet)+"** coins :moneybag:",
+                                    value="**"+str(self.game.counter)+"** spins\n**"+str(self.game.counter*self.bet)+f"** {curr_name}{curr_emote}",
                                     inline=True)
                     embed.add_field(name='Profit/Loss', 
-                                    value="**"+str(self.game.profit_loss)+"** coins :moneybag:", 
+                                    value="**"+str(self.game.profit_loss)+f"** {curr_name}{curr_emote}", 
                                     inline=True)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                     
@@ -215,18 +217,18 @@ class Games(commands.Cog):
     @slot.error
     async def slot_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(
+            await ctx.message.reply(
                 embed=discord.Embed(
                     title=":slot_machine: Slot Machine : :no_entry: An argument is missing",
-                    description="Command syntax: `.slot [bet_amount]`",
+                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}slot [bet_amount]`",
                     color=discord.Color.red(),
                     )
                 )
 
 
     @commands.command(aliases=['ftk'])
-    async def findtheking(self, ctx, bet): #TODO Find The King game
-        
+    async def findtheking(self, ctx, bet):
+
         async def ftk_callback(interaction):
             if interaction.user.id==ctx.author.id:
 
@@ -238,16 +240,16 @@ class Games(commands.Cog):
                     embed = discord.Embed(title = f"<:cardSpadesK:853266560361824256>Find The King : :white_check_mark: {ctx.author.name} WON with {interaction.component.emoji}{interaction.component.label}",
                         color= discord.Color.green(),
                         timestamp=datetime.utcnow())
-                    embed.add_field(name="You won", value="**"+str(self.bet*3)+"** :moneybag:", inline=False)
-                    embed.add_field(name='Your new Balance', value="**"+str(player_points+self.bet*3)+"** :moneybag:", inline=False)
+                    embed.add_field(name="You won", value="**"+str(self.bet*3)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                    embed.add_field(name='Your new Balance', value="**"+str(player_points+self.bet*3)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                 else:
                     self.db.transferPoints(ctx.guild.name, ctx.author.id, self.bet, self.client.user.id)
                     embed = discord.Embed(title = f"<:cardSpadesK:853266560361824256>Find The King : :x: {ctx.author.name} LOST with {interaction.component.emoji}{interaction.component.label}",
                         color= discord.Color.red(),
                         timestamp=datetime.utcnow())
-                    embed.add_field(name="You lost", value="**"+str(self.bet)+"** :moneybag:", inline=False)
-                    embed.add_field(name='Your Balance', value="**"+str(player_points-self.bet)+"** :moneybag:", inline=False)
+                    embed.add_field(name="You lost", value="**"+str(self.bet)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                    embed.add_field(name='Your Balance', value="**"+str(player_points-self.bet)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
 
             
@@ -301,10 +303,10 @@ class Games(commands.Cog):
     @findtheking.error
     async def findtheking_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(
+            await ctx.message.reply(
                 embed=discord.Embed(
                     title=f"<:cardSpadesK:853266560361824256>Find The King : :no_entry: An argument is missing",
-                    description="Command syntax: `.ftk [bet_amount]`",
+                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}ftk [bet_amount]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -359,8 +361,8 @@ class Games(commands.Cog):
             timestamp=datetime.utcnow())
 
         embed.add_field(name=f"You Rolled ({str(results[1][0]+results[1][1])}):", value=f"{dices[str(results[1][0])]} {dices[str(results[1][1])]}", inline=False)
-        embed.add_field(name="You won:", value="**"+str(float(self.bet*results[0]))+"**:moneybag:", inline=True)
-        embed.add_field(name="Your Balance:", value="**"+str(self.db.getPoints(ctx.guild.name, ctx.author.id))+"**:moneybag:", inline=True)
+        embed.add_field(name="You won:", value="**"+str(float(self.bet*results[0]))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
+        embed.add_field(name="Your Balance:", value="**"+str(self.db.getPoints(ctx.guild.name, ctx.author.id))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
 
         r = await ctx.message.reply(embed=embed)
@@ -369,10 +371,10 @@ class Games(commands.Cog):
     @dice.error
     async def dice_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(
+            await ctx.message.reply(
                 embed=discord.Embed(
                     title="Dice : :no_entry: An argument is missing",
-                    description="Command syntax: `.dice [bet_amount]`",
+                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}dice [bet_amount]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -403,8 +405,8 @@ class Games(commands.Cog):
                                 timestamp=datetime.utcnow())
                             embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                             embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                            embed.add_field(name='Your bet', value="**"+str(self.bet)+"**:moneybag:", inline=False)
-                            embed.add_field(name='Balance', value="**"+str(player_points)+"**:moneybag:", inline=True)
+                            embed.add_field(name='Your bet', value="**"+str(self.bet)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                            embed.add_field(name='Balance', value="**"+str(player_points)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
                             embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
 
                             for component in interaction.message.components:
@@ -418,8 +420,10 @@ class Games(commands.Cog):
                             timestamp=datetime.utcnow())
                         embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                         embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                        embed.add_field(name="You won:", value="**"+str(float(self.bet*0))+"**:moneybag:", inline=False)
-                        embed.add_field(name='Balance', value="**"+str(player_points)+"**:moneybag:", inline=True)
+                        embed.add_field(name="You won:", value="**" + str(float(self.bet*0))+ "**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                        embed.add_field(name='Balance', value="**"+str(player_points)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote')
+                        
+                        , inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
 
                         for component in interaction.message.components:
@@ -441,8 +445,8 @@ class Games(commands.Cog):
                             timestamp=datetime.utcnow())
                         embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                         embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                        embed.add_field(name="You won:", value="**"+str(float(self.bet*0))+"**:moneybag:", inline=False)
-                        embed.add_field(name='Balance', value="**"+str(player_points)+"**:moneybag:", inline=True)
+                        embed.add_field(name="You won:", value="**"+str(float(self.bet*0))+"**"+self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                        embed.add_field(name='Balance', value="**"+str(player_points)+"**"+self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)                     
 
                         for component in interaction.message.components:
@@ -466,8 +470,8 @@ class Games(commands.Cog):
                             timestamp=datetime.utcnow())
                         embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                         embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                        embed.add_field(name="You won:", value="**"+str(float(self.bet*2))+"**:moneybag:", inline=False)
-                        embed.add_field(name='Balance', value="**"+str(player_points+self.bet*2)+"**:moneybag:", inline=True)
+                        embed.add_field(name="You won:", value="**"+str(float(self.bet*2))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                        embed.add_field(name='Balance', value="**"+str(player_points+self.bet*2)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                     elif mullti==1: #draw
 
@@ -478,8 +482,8 @@ class Games(commands.Cog):
                             timestamp=datetime.utcnow())
                         embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                         embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                        embed.add_field(name="You won:", value="**"+str(float(self.bet))+"**:moneybag:", inline=False)
-                        embed.add_field(name='Balance', value="**"+str(player_points+self.bet)+"**:moneybag:", inline=True)
+                        embed.add_field(name="You won:", value="**"+str(float(self.bet))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                        embed.add_field(name='Balance', value="**"+str(player_points+self.bet)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote') , inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)                       
                     else:    #lost
                         embed = discord.Embed(title = f"BlackJack : {ctx.author.name} :x:LOST with {str(self.game.player_score)}",
@@ -487,8 +491,8 @@ class Games(commands.Cog):
                             timestamp=datetime.utcnow())
                         embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                         embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                        embed.add_field(name="You won:", value="**"+str(float(self.bet*0))+"**:moneybag:", inline=False)
-                        embed.add_field(name='Balance', value="**"+str(player_points)+"**:moneybag:", inline=True)
+                        embed.add_field(name="You won:", value="**"+str(float(self.bet*0))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                        embed.add_field(name='Balance', value="**"+str(player_points)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
     
 
@@ -530,8 +534,8 @@ class Games(commands.Cog):
                         timestamp=datetime.utcnow())
             embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
             embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-            embed.add_field(name="You won:", value="**"+str(float(self.bet*2.2))+"**:moneybag:", inline=False)
-            embed.add_field(name='Balance', value="**"+str(points+float(self.bet*2.2))+"**:moneybag:", inline=True)
+            embed.add_field(name="You won:", value="**"+str(float(self.bet*2.2))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+            embed.add_field(name='Balance', value="**"+str(points+float(self.bet*2.2))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
             embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
             await ctx.message.reply(embed=embed)               
 
@@ -541,8 +545,8 @@ class Games(commands.Cog):
                     timestamp=datetime.utcnow())
             embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
             embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-            embed.add_field(name='Your bet', value="**"+str(self.bet)+"**:moneybag:", inline=False)
-            embed.add_field(name='Balance', value="**"+str(points)+"**:moneybag:", inline=True)
+            embed.add_field(name='Your bet', value="**"+str(self.bet)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+            embed.add_field(name='Balance', value="**"+str(points)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
             embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
             await ctx.message.reply(
                 embed=embed,            
@@ -559,8 +563,7 @@ class Games(commands.Cog):
     @blackjack.error
     async def blackjack_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f"BlackJack : :no_entry: **An argument is missing** \nCommand syntax: `.blackjack [bet_amount]`")
-            await ctx.send(
+            await ctx.message.reply(
                 embed=discord.Embed(
                     title="BlackJack : :no_entry: An argument is missing",
                     description="Command syntax: `.blackjack [bet_amount]`",

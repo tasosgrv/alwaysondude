@@ -1,5 +1,5 @@
-import os
 import discord
+from database import Database
 import yaml
 from discord.ext import commands
 from discord_components import DiscordComponents, ComponentsBot
@@ -8,13 +8,19 @@ from discord_components import DiscordComponents, ComponentsBot
 
 
 class AlwaysOnDude(commands.Bot):
+    DEFAULT_PREFIX = '.'
     def __init__(self):
-        super().__init__(command_prefix='.',
+        super().__init__(command_prefix=self.get_prefix,
                         intents=discord.Intents.all(),
                         help_command=commands.MinimalHelpCommand(),
                         chunk_guilds_at_startup=True,
                         )
-        self.discord_components = DiscordComponents(self)                
+
+        
+
+
+        self.discord_components = DiscordComponents(self)     
+        self.db = Database()           
         self.to_load = [
             "cogs.BasicCommands",
             "cogs.economy",
@@ -25,7 +31,15 @@ class AlwaysOnDude(commands.Bot):
         
         for cog in self.to_load:
             self.load_cog(cog)
-        
+
+
+    async def get_prefix(self, message):
+        if not message.guild:
+            return commands.when_mentioned_or(AlwaysOnDude.DEFAULT_PREFIX)(self, message)
+
+        prefix = self.db.getGuildValue(message.guild.id, 'prefix')
+        return commands.when_mentioned_or(prefix)(self, message)
+
             
     def load_cog(self, cog: str):
         try:
