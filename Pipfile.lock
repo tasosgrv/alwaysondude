@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e926e74c491bac9078fd4326fe724cb5de857934c0f0d6119ee5a584cf9f8563"
+            "sha256": "50d4ced3b1f25579b4abf265a451f7904dc793a67b92d6a99d39fe4f1a07e8f8"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -139,6 +139,13 @@
             ],
             "index": "pypi",
             "version": "==1.7.3"
+        },
+        "emoji": {
+            "hashes": [
+                "sha256:65c54533ea3c78f30d0729288998715f418d7467de89ec258a31c0ce8660a1d1"
+            ],
+            "index": "pypi",
+            "version": "==1.7.0"
         },
         "idna": {
             "hashes": [
@@ -409,14 +416,6 @@
             ],
             "index": "pypi",
             "version": "==1.5.1"
-        },
-        "youtube-dl": {
-            "hashes": [
-                "sha256:bc82acb0b59b25b822fad85bef0cbe78e5754ca532e3bd6899fe06386e2b8e7c",
-                "sha256:daa514c0d36af478fe249ea93ca63ae3aaa60ac5f82aa3d5514bce9ba7ed8451"
-            ],
-            "index": "pypi",
-            "version": "==2020.12.2"
         }
     },
     "develop": {}
