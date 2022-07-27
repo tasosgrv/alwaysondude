@@ -1,8 +1,6 @@
-from sys import prefix
 import discord
 from discord.ext import commands
 from datetime import datetime
-import database
 import re
 import emoji
 
@@ -10,7 +8,6 @@ import emoji
 class adminCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.db = database.Database()
 
 
 
@@ -20,8 +17,8 @@ class adminCommands(commands.Cog):
         if new_prefix is None:
             await ctx.message.reply(
                 embed=discord.Embed(
-                    title=f":gear: The current prefix on **{ctx.guild.name}** is `{self.db.getGuildValue(ctx.guild.id, 'prefix')}`",
-                    description=f"if you want to change it type `{self.db.getGuildValue(ctx.guild.id, 'prefix')}prefix [new_prefix]`",
+                    title=f":gear: The current prefix on **{ctx.guild.name}** is `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}`",
+                    description=f"if you want to change it type `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}prefix [new_prefix]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -33,8 +30,8 @@ class adminCommands(commands.Cog):
             await ctx.message.reply(f":gear:: :no_entry: **Wrong entry**,\n The prefix is invalid\n Valid prefixes: `.` `,` `!` `/` `>` `$`")
             return        
 
-        if self.db.setGuildValue(ctx.guild.id, 'prefix', new_prefix):
-            await ctx.message.reply(f":gear:: ::white_check_mark: : The earning rate for **{ctx.guild.name}** changed successfully to **{new_prefix}**")
+        if self.client.db.setGuildValue(ctx.guild.id, 'prefix', new_prefix):
+            await ctx.message.reply(f":gear:: ::white_check_mark: : The prefix for **{ctx.guild.name}** changed successfully to `{new_prefix}`")
         else:
             await ctx.message.reply(f":gear:: :no_entry: The command failed")
 
@@ -45,7 +42,7 @@ class adminCommands(commands.Cog):
     async def earningrate(self, ctx, new_rate=None):
         
         if new_rate is None:
-            await ctx.message.reply(f":gear: The current earning rate for **{self.db.getGuildValue(ctx.guild.id, 'currency_name')}** is **{self.db.getGuildValue(ctx.guild.id, 'earning_rate')}**")
+            await ctx.message.reply(f":gear: The current earning rate for **{self.client.db.getGuildValue(ctx.guild.id, 'currency_name')}** is **{self.client.db.getGuildValue(ctx.guild.id, 'earning_rate')}**")
             return
 
         try:
@@ -59,7 +56,7 @@ class adminCommands(commands.Cog):
             return
 
 
-        if self.db.setGuildValue(ctx.guild.id, 'earning_rate', new_rate):
+        if self.client.db.setGuildValue(ctx.guild.id, 'earning_rate', new_rate):
             await ctx.message.reply(f":gear:: ::white_check_mark: : The earning rate for **{ctx.guild.name}** changed successfully to **{new_rate}**")
         else:
             await ctx.message.reply(f":gear:: :no_entry: The command failed")
@@ -70,7 +67,7 @@ class adminCommands(commands.Cog):
             await ctx.message.reply(
                 embed=discord.Embed(
                     title=":gear:: :no_entry: **An argument is missing**",
-                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}earningrate [new reward]`",
+                    description=f"Command syntax: `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}earningrate [new reward]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -83,7 +80,7 @@ class adminCommands(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def drops(self, ctx, new_state=None):
 
-        if self.db.getGuildValue(ctx.guild.id, 'drops'):
+        if self.client.db.getGuildValue(ctx.guild.id, 'drops'):
             state = 'enabled'
         else:
             state = 'disabled'
@@ -93,13 +90,13 @@ class adminCommands(commands.Cog):
             return
 
         if new_state == "enable":
-            self.db.setGuildValue(ctx.guild.id, 'drops', 'True')
+            self.client.db.setGuildValue(ctx.guild.id, 'drops', 'True')
             await ctx.message.reply(f":gear: 🎁 :green_circle: The random drops are now **enabled**") 
         elif new_state == "disable":
-            self.db.setGuildValue(ctx.guild.id, 'drops', 'False')
+            self.client.db.setGuildValue(ctx.guild.id, 'drops', 'False')
             await ctx.message.reply(f":gear: 🎁 :red_circle: The random drops are now **disabled**")
         else:
-            await ctx.message.reply(f":gear: 🎁 :no_entry: **Wrong entry**,\n if you want to enable/disable the drops type {self.db.getGuildValue(ctx.guild.id, 'prefix')}drops [enable/disable]")
+            await ctx.message.reply(f":gear: 🎁 :no_entry: **Wrong entry**,\n if you want to enable/disable the drops type {self.client.db.getGuildValue(ctx.guild.id, 'prefix')}drops [enable/disable]")
 
 
 
@@ -109,7 +106,7 @@ class adminCommands(commands.Cog):
             await ctx.message.reply(
                 embed=discord.Embed(
                     title=":gear:: :no_entry: **An argument is missing**",
-                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}drops [enable/disable]`",
+                    description=f"Command syntax: `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}drops [enable/disable]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -125,7 +122,7 @@ class adminCommands(commands.Cog):
     async def dailyreward(self, ctx, new_reward=None):
         
         if new_reward is None:
-            await ctx.message.reply(f":gear: The current daily reward for {ctx.guild.name} is **{self.db.getGuildValue(ctx.guild.id, 'daily_reward')}** {self.db.getGuildValue(ctx.guild.id, 'currency_name')}:moneybag:")
+            await ctx.message.reply(f":gear: The current daily reward for {ctx.guild.name} is **{self.client.db.getGuildValue(ctx.guild.id, 'daily_reward')}** {self.client.db.getGuildValue(ctx.guild.id, 'currency_name')}:moneybag:")
             return
 
         try:
@@ -139,14 +136,14 @@ class adminCommands(commands.Cog):
             return
 
         elif new_reward == 0:
-            if self.db.setGuildValue(ctx.guild.id, 'daily_reward', new_reward):
+            if self.client.db.setGuildValue(ctx.guild.id, 'daily_reward', new_reward):
                 await ctx.message.reply(f":gear:: :no_entry: The daily rewards are now disabled")
             else:
                 await ctx.message.reply(f":gear:: :no_entry: The command failed")
 
         else:
-            if self.db.setGuildValue(ctx.guild.id, 'daily_reward', new_reward):
-                await ctx.message.reply(f":gear:: ::white_check_mark: : The daily reward for **{ctx.guild.name}** changed successfully to **{new_reward}**{self.db.getGuildValue(ctx.guild.id, 'currency_name')}:moneybag:")
+            if self.client.db.setGuildValue(ctx.guild.id, 'daily_reward', new_reward):
+                await ctx.message.reply(f":gear:: ::white_check_mark: : The daily reward for **{ctx.guild.name}** changed successfully to **{new_reward}**{self.client.db.getGuildValue(ctx.guild.id, 'currency_name')}:moneybag:")
             else:
                 await ctx.message.reply(f":gear:: :no_entry: The command failed")
 
@@ -158,7 +155,7 @@ class adminCommands(commands.Cog):
             await ctx.message.reply(
                 embed=discord.Embed(
                     title=":gear:: :no_entry: An argument is missing",
-                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}dailyreward [new reward]`",
+                    description=f"Command syntax: `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}dailyreward [new reward]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -174,10 +171,10 @@ class adminCommands(commands.Cog):
         if action is None:
             
             embed = discord.Embed(title=":gear: : :dollar: Currency Informations", color=ctx.author.color, timestamp=datetime.utcnow())
-            embed.add_field(name="name", value=f"{self.db.getGuildValue(ctx.guild.id, 'currency_name')}", inline=False)
-            embed.add_field(name="icon (emoji)", value=f"{self.db.getGuildValue(ctx.guild.id, 'currency_emote')}", inline=False)
-            embed.add_field(name="Circulating Supply ", value=f"{self.db.getCirculatingSupply(ctx.guild.name)}", inline=False)
-            embed.add_field(name="Total Supply", value=f"{self.db.getTotalSupply(ctx.guild.name)}", inline=False)
+            embed.add_field(name="name", value=f"{self.client.db.getGuildValue(ctx.guild.id, 'currency_name')}", inline=False)
+            embed.add_field(name="icon (emoji)", value=f"{self.client.db.getGuildValue(ctx.guild.id, 'currency_emote')}", inline=False)
+            embed.add_field(name="Circulating Supply ", value=f"{self.client.db.getCirculatingSupply(ctx.guild.name)}", inline=False)
+            embed.add_field(name="Total Supply", value=f"{self.client.db.getTotalSupply(ctx.guild.name)}", inline=False)
             embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
             await ctx.message.reply(embed=embed)
             return
@@ -203,18 +200,18 @@ class adminCommands(commands.Cog):
                 await ctx.messsage.reply(f":gear:: :no_entry: **The amount has to be an integer non-negative number**")
                 return
 
-            sender_amount= self.db.getPoints(ctx.guild.name, self.client.user.id)
+            sender_amount= self.client.db.getPoints(ctx.guild.name, self.client.user.id)
         
             if sender_amount<points:
                 await ctx.message.reply(f":gear:: :x: **Insufficient amount**")
                 return
 
             if action=="add":
-                self.db.transferPoints(ctx.guild.name, self.client.user.id, points, str_arg.id)
-                await ctx.message.reply(f":gear:: ::white_check_mark: : **{points}**{self.db.getGuildValue(ctx.guild.id, 'currency_emote')} added to {str_arg.mention}")
+                self.client.db.transferPoints(ctx.guild.name, self.client.user.id, points, str_arg.id)
+                await ctx.message.reply(f":gear:: ::white_check_mark: : **{points}**{self.client.db.getGuildValue(ctx.guild.id, 'currency_emote')} added to {str_arg.mention}")
             else:
-                self.db.transferPoints(ctx.guild.name, str_arg.id, points, self.client.user.id)
-                await ctx.message.reply(f":gear:: ::white_check_mark: : **{points}**{self.db.getGuildValue(ctx.guild.id, 'currency_emote')} removed from {str_arg.mention}")
+                self.client.db.transferPoints(ctx.guild.name, str_arg.id, points, self.client.user.id)
+                await ctx.message.reply(f":gear:: ::white_check_mark: : **{points}**{self.client.db.getGuildValue(ctx.guild.id, 'currency_emote')} removed from {str_arg.mention}")
         
         elif action=="name":
             try:
@@ -223,7 +220,7 @@ class adminCommands(commands.Cog):
                 await ctx.message.reply(f":gear:: :no_entry: **Invalid name**")
                 return
 
-            if self.db.setGuildValue(ctx.guild.id, 'currency_name', name):
+            if self.client.db.setGuildValue(ctx.guild.id, 'currency_name', name):
                 await ctx.message.reply(f":gear:: :white_check_mark: The currency name now changed to '{name}'")
             else:
                 await ctx.message.reply(f":gear:: :no_entry: The currency name change failed")
@@ -256,10 +253,10 @@ class adminCommands(commands.Cog):
               
         else:
             embed=discord.Embed(title=":gear: : :no_entry: Action Not Found", description="Vallid Actions by exaples", color= ctx.author.color, timestamp=datetime.utcnow())
-            embed.add_field(name="add ", value=f"`{self.db.getGuildValue(ctx.guild.id, 'prefix')}currency add @user 100`", inline=False)
-            embed.add_field(name="remove", value=f"`{self.db.getGuildValue(ctx.guild.id, 'prefix')}currency remove @user 100`", inline=False)
-            embed.add_field(name="name", value=f"`{self.db.getGuildValue(ctx.guild.id, 'prefix')}currency name coins`", inline=False)
-            embed.add_field(name="emoji", value=f"`{self.db.getGuildValue(ctx.guild.id, 'prefix')}currency name 💲`", inline=False)
+            embed.add_field(name="add ", value=f"`{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}currency add @user 100`", inline=False)
+            embed.add_field(name="remove", value=f"`{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}currency remove @user 100`", inline=False)
+            embed.add_field(name="name", value=f"`{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}currency name coins`", inline=False)
+            embed.add_field(name="emoji", value=f"`{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}currency name 💲`", inline=False)
             embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
             await ctx.message.reply(embed=embed)
 
@@ -272,7 +269,7 @@ class adminCommands(commands.Cog):
             await ctx.message.reply(
                 embed=discord.Embed(
                     title=":gear:: :no_entry: An argument is missing",
-                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}currency [add/remove] [member name] [points to transfer]`",
+                    description=f"Command syntax: `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}currency [add/remove] [member name] [points to transfer]`",
                     color=discord.Color.red(),
                     )
                 )

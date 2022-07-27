@@ -7,8 +7,6 @@ from discord_components import (
 import math
 import random
 import re
-import database
-import pprint as debug
 from datetime import datetime, timedelta
 
 
@@ -16,21 +14,20 @@ from datetime import datetime, timedelta
 class Economy(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.db = database.Database()
         self.reward.start()
 
     @commands.command(aliases=['bal', 'b'])
     async def balance(self, ctx):
-        await ctx.message.reply(f":bank: {ctx.author.mention} has **{self.db.getPoints(ctx.guild.name, ctx.author.id)}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}")
+        await ctx.message.reply(f":bank: {ctx.author.mention} has **{self.client.db.getPoints(ctx.guild.name, ctx.author.id)}** {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')}")
 
     @commands.command(aliases=['leadr', 'l'])
     async def leaderboard(self, ctx):
         async with ctx.message.channel.typing():
-            embed = discord.Embed(title = f":bank: :bar_chart: {self.db.getGuildValue(ctx.guild.id ,'currency_name')} Leaderboard for {ctx.guild.name}",
+            embed = discord.Embed(title = f":bank: :bar_chart: {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')} Leaderboard for {ctx.guild.name}",
                             color= ctx.author.color,
                             timestamp=datetime.utcnow())
 
-            leaderboard = self.db.getLeaderboard(ctx.guild.name, 10, 0)
+            leaderboard = self.client.db.getLeaderboard(ctx.guild.name, 10, 0)
 
             standings = ''
             for i,item in enumerate(leaderboard):
@@ -46,10 +43,10 @@ class Economy(commands.Cog):
     async def supply(self, ctx):
         async with ctx.message.channel.typing():
 
-            circ_supply = self.db.getCirculatingSupply(ctx.guild.name)
-            max_supply = self.db.getTotalSupply(ctx.guild.name)
+            circ_supply = self.client.db.getCirculatingSupply(ctx.guild.name)
+            max_supply = self.client.db.getTotalSupply(ctx.guild.name)
 
-        await ctx.send(f":bank:: :bar_chart: **{ctx.guild.name}** has **{circ_supply}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')} Circulating Supply and **{max_supply}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')} Total supply")
+        await ctx.send(f":bank:: :bar_chart: **{ctx.guild.name}** has **{circ_supply}** {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')} Circulating Supply and **{max_supply}** {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')} Total supply")
 
     @commands.command()
     async def give(self, ctx, member, points):
@@ -64,7 +61,7 @@ class Economy(commands.Cog):
                 return
             
 
-            sender_amount= self.db.getPoints(ctx.guild.name, ctx.author.id)
+            sender_amount= self.client.db.getPoints(ctx.guild.name, ctx.author.id)
 
             if sender_amount<payment:
                 await ctx.channel.send(f":bank:: :x: **Insufficient amount**")
@@ -74,10 +71,10 @@ class Economy(commands.Cog):
             member = await ctx.guild.fetch_member(user)
 
 
-            self.db.transferPoints(ctx.guild.name, ctx.author.id, payment, member.id)
+            self.client.db.transferPoints(ctx.guild.name, ctx.author.id, payment, member.id)
 
 
-            await ctx.channel.send(f":bank:: :white_check_mark: {ctx.author.mention} gave **{payment}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')} to {member.mention}")
+            await ctx.channel.send(f":bank:: :white_check_mark: {ctx.author.mention} gave **{payment}** {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')} to {member.mention}")
 
     @give.error
     async def give_error(self, ctx, error):
@@ -86,7 +83,7 @@ class Economy(commands.Cog):
                 await ctx.message.reply(
                     embed=discord.Embed(
                         title=":bank:: :no_entry: An argument is missing",
-                        description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}give [member] [coins]`",
+                        description=f"Command syntax: `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}give [member] [coins]`",
                         color=discord.Color.red(),
                         )
                     )
@@ -106,7 +103,7 @@ class Economy(commands.Cog):
             return
 
 
-        sender_amount= self.db.getPoints(ctx.guild.name, ctx.author.id)
+        sender_amount= self.client.db.getPoints(ctx.guild.name, ctx.author.id)
 
         if sender_amount<donation:
             await ctx.channel.send(f":bank:: :x: **Insufficient amount**")
@@ -127,17 +124,17 @@ class Economy(commands.Cog):
             winner = random.choice(members)
             winners.append(winner)
 
-        embed = discord.Embed(title = f":bank:: :white_check_mark: {ctx.author.name} made a rain :cloud_rain: of **{donation}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}",
+        embed = discord.Embed(title = f":bank:: :white_check_mark: {ctx.author.name} made a rain :cloud_rain: of **{donation}** {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')}",
                         color= ctx.author.color,
                         timestamp=datetime.utcnow())
         respond = ""
 
 
-        self.db.setPoints(ctx.guild.name, ctx.author.id, sender_amount-donation) #decrease sender's points
+        self.client.db.setPoints(ctx.guild.name, ctx.author.id, sender_amount-donation) #decrease sender's points
         for winner in winners:
-            recipient_amount= self.db.getPoints(ctx.guild.name, winner.id) 
-            self.db.setPoints(ctx.guild.name, winner.id, recipient_amount+donation_share) #increase recipient's points
-            respond += "\n"+ str(winner.mention ) + " got **" + str(donation_share) + f"** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}"
+            recipient_amount= self.client.db.getPoints(ctx.guild.name, winner.id) 
+            self.client.db.setPoints(ctx.guild.name, winner.id, recipient_amount+donation_share) #increase recipient's points
+            respond += "\n"+ str(winner.mention ) + " got **" + str(donation_share) + f"** {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')}"
         
 
 
@@ -154,7 +151,7 @@ class Economy(commands.Cog):
             await ctx.message.reply(
                 embed=discord.Embed(
                     title=":bank:: :no_entry: An argument is missing",
-                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}rain [total_amount] [number of recipients]`",
+                    description=f"Command syntax: `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}rain [total_amount] [number of recipients]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -162,19 +159,19 @@ class Economy(commands.Cog):
     @commands.command(aliases=['dr'])
     async def daily(self, ctx):
 
-        reward_value = self.db.getGuildValue(ctx.guild.id, 'daily_reward')
+        reward_value = self.client.db.getGuildValue(ctx.guild.id, 'daily_reward')
         if reward_value == 0 :
             return
 
-        lastclaim = self.db.getDailyRewardTime(ctx.guild.name, ctx.author.id)
+        lastclaim = self.client.db.getDailyRewardTime(ctx.guild.name, ctx.author.id)
         now = datetime.now()
         
         if (now - lastclaim) > timedelta(days=1):
-            points = self.db.getPoints(ctx.guild.name, ctx.author.id)
-            self.db.setPoints(ctx.guild.name, ctx.author.id, points+float(reward_value))
-            self.db.setDailyRewardTime(ctx.guild.name, ctx.author.id, now)
-            curr_name = self.db.getGuildValue(ctx.guild.id ,'currency_name')
-            curr_emote = self.db.getGuildValue(ctx.guild.id ,'currency_emote')
+            points = self.client.db.getPoints(ctx.guild.name, ctx.author.id)
+            self.client.db.setPoints(ctx.guild.name, ctx.author.id, points+float(reward_value))
+            self.client.db.setDailyRewardTime(ctx.guild.name, ctx.author.id, now)
+            curr_name = self.client.db.getGuildValue(ctx.guild.id ,'currency_name')
+            curr_emote = self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')
             embed = discord.Embed(title = f":bank:: :white_check_mark: You clamed your daily reward!",
                     color=discord.Color.green(),
                     timestamp=datetime.utcnow())
@@ -201,8 +198,8 @@ class Economy(commands.Cog):
 
 #===============RANDOM DROPS===================================================================================================
     async def spawn_reward(self, guild):
-        curr_name = self.db.getGuildValue(guild.id ,'currency_name')
-        curr_emote = self.db.getGuildValue(guild.id ,'currency_emote')
+        curr_name = self.client.db.getGuildValue(guild.id ,'currency_name')
+        curr_emote = self.client.db.getGuildValue(guild.id ,'currency_emote')
         async def reward_callback(interaction):
             try:
                 reward = float(re.search(r'\d+', interaction.message.embeds[0].fields[0].name).group()) #get the reward points of the embed message
@@ -212,9 +209,9 @@ class Economy(commands.Cog):
                 return
 
 
-            points = self.db.getPoints(interaction.message.guild.name, interaction.user.id)
+            points = self.client.db.getPoints(interaction.message.guild.name, interaction.user.id)
             points += reward-1
-            self.db.setPoints(interaction.message.guild.name, interaction.user.id, points)
+            self.client.db.setPoints(interaction.message.guild.name, interaction.user.id, points)
 
             embed = discord.Embed(title = f"🎉 {interaction.user.name}  got the reward! 🎁",
                     color= interaction.user.color,
@@ -259,7 +256,7 @@ class Economy(commands.Cog):
     @tasks.loop(seconds=3600.0)
     async def reward(self):
         for guild in self.client.guilds:
-            if self.db.getGuildValue(guild.id, 'drops'):
+            if self.client.db.getGuildValue(guild.id, 'drops'):
                 if random.random() < 0.10:
                     await self.spawn_reward(guild)
 

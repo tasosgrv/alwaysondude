@@ -4,9 +4,7 @@ import random
 import re
 from discord import emoji
 from discord.errors import PrivilegedIntentsRequired
-import database
 import games
-import asyncio
 import pprint as debug
 from datetime import datetime
 from discord.ext import tasks, commands
@@ -18,8 +16,6 @@ from discord_components import (
 class Games(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.db = database.Database()
-
     
     @commands.command(aliases=['cp'])
     async def coinflip(self, ctx, bet):
@@ -33,32 +29,32 @@ class Games(commands.Cog):
 
                 coinflip = self.game.play(interaction.component.custom_id)
 
-                player_points = self.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
+                player_points = self.client.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
                 if coinflip:    
-                    self.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet, ctx.author.id)
-                    #self.db.betPlaced(channel.guild.name, user.id, self.bet, "coinflip", float(self.bet*2))
+                    self.client.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet, ctx.author.id)
+                    #self.client.db.betPlaced(channel.guild.name, user.id, self.bet, "coinflip", float(self.bet*2))
                     embed = discord.Embed(title = f":coin:Coinflip : :white_check_mark: {ctx.author.name} **WON** with {interaction.component.label}{interaction.component.emoji}",
                                             color= discord.Color.green(),
                                             timestamp=datetime.utcnow())
                     embed.add_field(name='You won', 
-                                    value=f"**{str(self.bet)}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
+                                    value=f"**{str(self.bet)}** {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
                                     inline=False)
                     embed.add_field(name='Your new balance', 
-                                    value=f"**{str(player_points+self.bet)}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
+                                    value=f"**{str(player_points+self.bet)}** {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
                                     inline=False)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                               
                 else:
-                    self.db.transferPoints(ctx.guild.name, ctx.author.id, self.bet, self.client.user.id)
-                    #self.db.betPlaced(channel.guild.name, user.id, self.bet, "coinflip", 0)
+                    self.client.db.transferPoints(ctx.guild.name, ctx.author.id, self.bet, self.client.user.id)
+                    #self.client.db.betPlaced(channel.guild.name, user.id, self.bet, "coinflip", 0)
                     embed = discord.Embed(title = f":coin:Coinflip : :x: {ctx.author.name} **LOST** with {interaction.component.label}{interaction.component.emoji}",
                                             color= discord.Color.red(),
                                             timestamp=datetime.utcnow())
                     embed.add_field(name='You lost', 
-                                    value=f"**{str(self.bet)}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
+                                    value=f"**{str(self.bet)}** {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
                                     inline=False)
                     embed.add_field(name='Your new balance', 
-                                    value=f"**{str(player_points-self.bet)}** {self.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
+                                    value=f"**{str(player_points-self.bet)}** {self.client.db.getGuildValue(ctx.guild.id ,'currency_name')}{self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')}", 
                                     inline=False)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                     
@@ -77,7 +73,7 @@ class Games(commands.Cog):
             return
 
 
-        points = self.db.getPoints(ctx.guild.name, ctx.author.id)
+        points = self.client.db.getPoints(ctx.guild.name, ctx.author.id)
 
 
         if self.bet>points:
@@ -106,7 +102,7 @@ class Games(commands.Cog):
             await ctx.message.reply(
                 embed=discord.Embed(
                     title=":coin:Coinflip : :no_entry: An argument is missing",
-                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}coinflip [bet_amount]`",
+                    description=f"Command syntax: `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}coinflip [bet_amount]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -114,28 +110,28 @@ class Games(commands.Cog):
     
     @commands.command(aliases=['sl'])
     async def slot(self, ctx, bet):
-        curr_name = self.db.getGuildValue(ctx.guild.id ,'currency_name')
-        curr_emote = self.db.getGuildValue(ctx.guild.id ,'currency_emote')
+        curr_name = self.client.db.getGuildValue(ctx.guild.id ,'currency_name')
+        curr_emote = self.client.db.getGuildValue(ctx.guild.id ,'currency_emote')
         async def slot_callback(interaction):
 
             if interaction.user.id==ctx.author.id:
 
-                player_points = self.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
+                player_points = self.client.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
 
                 if interaction.custom_id=="spin" and self.bet<=player_points:
                     slot = self.game.play()
 
-                    self.db.transferPoints(ctx.guild.name, ctx.author.id, self.bet, self.client.user.id)
+                    self.client.db.transferPoints(ctx.guild.name, ctx.author.id, self.bet, self.client.user.id)
 
                     if slot[0]>0: #if player won
-                        self.db.transferPoints(ctx.guild.name, self.client.user.id, slot[0]*self.bet, ctx.author.id)
+                        self.client.db.transferPoints(ctx.guild.name, self.client.user.id, slot[0]*self.bet, ctx.author.id)
                     
-                    #self.db.betPlaced(channel.guild.name, user.id, self.bet, "slot", float(slot[0]*self.bet))
+                    #self.client.db.betPlaced(channel.guild.name, user.id, self.bet, "slot", float(slot[0]*self.bet))
                     embed = discord.Embed(title = f":slot_machine: Slot Machine for {ctx.author.name}",
                             color= ctx.author.color,
                             timestamp=datetime.utcnow())
                     embed.add_field(name='Spin: '+str(self.game.counter), value=str(' '.join(map(str, slot[1]))), inline=False)
-                    embed.add_field(name='Balance', value="**"+str(self.db.getPoints(ctx.guild.name, ctx.author.id))+f"**{curr_emote}", inline=True)
+                    embed.add_field(name='Balance', value="**"+str(self.client.db.getPoints(ctx.guild.name, ctx.author.id))+f"**{curr_emote}", inline=True)
                     embed.add_field(name='You Won', value="**"+str(float(slot[0])*float(self.bet))+f"**{curr_emote}", inline=True)
                     embed.add_field(name='Multiplier', value=str(slot[0])+"x", inline=True)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
@@ -192,7 +188,7 @@ class Games(commands.Cog):
             return
 
 
-        points = self.db.getPoints(ctx.guild.name, ctx.author.id)
+        points = self.client.db.getPoints(ctx.guild.name, ctx.author.id)
 
         if self.bet>points:
             await ctx.channel.send(f":slot_machine: : :x: **Insufficient amount**")
@@ -220,7 +216,7 @@ class Games(commands.Cog):
             await ctx.message.reply(
                 embed=discord.Embed(
                     title=":slot_machine: Slot Machine : :no_entry: An argument is missing",
-                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}slot [bet_amount]`",
+                    description=f"Command syntax: `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}slot [bet_amount]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -232,24 +228,24 @@ class Games(commands.Cog):
         async def ftk_callback(interaction):
             if interaction.user.id==ctx.author.id:
 
-                player_points = self.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
+                player_points = self.client.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
                 ftk = self.game.play(interaction.custom_id)
                 contnt = f"{str(' '.join(map(str, ftk[1])))}"
                 if ftk[0]:
-                    self.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet*3, ctx.author.id)
+                    self.client.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet*3, ctx.author.id)
                     embed = discord.Embed(title = f"<:cardSpadesK:853266560361824256>Find The King : :white_check_mark: {ctx.author.name} WON with {interaction.component.emoji}{interaction.component.label}",
                         color= discord.Color.green(),
                         timestamp=datetime.utcnow())
-                    embed.add_field(name="You won", value="**"+str(self.bet*3)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
-                    embed.add_field(name='Your new Balance', value="**"+str(player_points+self.bet*3)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                    embed.add_field(name="You won", value="**"+str(self.bet*3)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                    embed.add_field(name='Your new Balance', value="**"+str(player_points+self.bet*3)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                 else:
-                    self.db.transferPoints(ctx.guild.name, ctx.author.id, self.bet, self.client.user.id)
+                    self.client.db.transferPoints(ctx.guild.name, ctx.author.id, self.bet, self.client.user.id)
                     embed = discord.Embed(title = f"<:cardSpadesK:853266560361824256>Find The King : :x: {ctx.author.name} LOST with {interaction.component.emoji}{interaction.component.label}",
                         color= discord.Color.red(),
                         timestamp=datetime.utcnow())
-                    embed.add_field(name="You lost", value="**"+str(self.bet)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
-                    embed.add_field(name='Your Balance', value="**"+str(player_points-self.bet)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                    embed.add_field(name="You lost", value="**"+str(self.bet)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                    embed.add_field(name='Your Balance', value="**"+str(player_points-self.bet)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
                     embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
 
             
@@ -271,7 +267,7 @@ class Games(commands.Cog):
             return
 
 
-        points = self.db.getPoints(ctx.guild.name, ctx.author.id)
+        points = self.client.db.getPoints(ctx.guild.name, ctx.author.id)
 
 
         if self.bet>points:
@@ -306,7 +302,7 @@ class Games(commands.Cog):
             await ctx.message.reply(
                 embed=discord.Embed(
                     title=f"<:cardSpadesK:853266560361824256>Find The King : :no_entry: An argument is missing",
-                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}ftk [bet_amount]`",
+                    description=f"Command syntax: `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}ftk [bet_amount]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -325,7 +321,7 @@ class Games(commands.Cog):
             return
 
 
-        points = self.db.getPoints(ctx.guild.name, ctx.author.id)
+        points = self.client.db.getPoints(ctx.guild.name, ctx.author.id)
 
 
         if self.bet>points:
@@ -346,7 +342,7 @@ class Games(commands.Cog):
 
 
         if results[0]>1:
-            self.db.transferPoints(ctx.guild.name, self.client.user.id, results[0]*self.bet, ctx.author.id)
+            self.client.db.transferPoints(ctx.guild.name, self.client.user.id, results[0]*self.bet, ctx.author.id)
             embed = discord.Embed(title = f"Dice for {ctx.author.name}",
             color= discord.Color.green(),
             timestamp=datetime.utcnow())
@@ -355,14 +351,14 @@ class Games(commands.Cog):
             color= discord.Color.orange(),
             timestamp=datetime.utcnow())
         else:
-            self.db.transferPoints(ctx.guild.name, ctx.author.id, self.bet, self.client.user.id)
+            self.client.db.transferPoints(ctx.guild.name, ctx.author.id, self.bet, self.client.user.id)
             embed = discord.Embed(title = f"Dice for {ctx.author.name}",
             color= discord.Color.red(),
             timestamp=datetime.utcnow())
 
         embed.add_field(name=f"You Rolled ({str(results[1][0]+results[1][1])}):", value=f"{dices[str(results[1][0])]} {dices[str(results[1][1])]}", inline=False)
-        embed.add_field(name="You won:", value="**"+str(float(self.bet*results[0]))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
-        embed.add_field(name="Your Balance:", value="**"+str(self.db.getPoints(ctx.guild.name, ctx.author.id))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
+        embed.add_field(name="You won:", value="**"+str(float(self.bet*results[0]))+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
+        embed.add_field(name="Your Balance:", value="**"+str(self.client.db.getPoints(ctx.guild.name, ctx.author.id))+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
 
         r = await ctx.message.reply(embed=embed)
@@ -374,7 +370,7 @@ class Games(commands.Cog):
             await ctx.message.reply(
                 embed=discord.Embed(
                     title="Dice : :no_entry: An argument is missing",
-                    description=f"Command syntax: `{self.db.getGuildValue(ctx.guild.id, 'prefix')}dice [bet_amount]`",
+                    description=f"Command syntax: `{self.client.db.getGuildValue(ctx.guild.id, 'prefix')}dice [bet_amount]`",
                     color=discord.Color.red(),
                     )
                 )
@@ -386,7 +382,7 @@ class Games(commands.Cog):
         async def bj_callback(interaction):
             if interaction.user.id==ctx.author.id:
 
-                player_points = self.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
+                player_points = self.client.db.getPoints(ctx.guild.name, ctx.author.id) #get points of the player
 
 
                 if interaction.custom_id=="hit":
@@ -405,8 +401,8 @@ class Games(commands.Cog):
                                 timestamp=datetime.utcnow())
                             embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                             embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                            embed.add_field(name='Your bet', value="**"+str(self.bet)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
-                            embed.add_field(name='Balance', value="**"+str(player_points)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
+                            embed.add_field(name='Your bet', value="**"+str(self.bet)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                            embed.add_field(name='Balance', value="**"+str(player_points)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
                             embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
 
                             for component in interaction.message.components:
@@ -420,8 +416,8 @@ class Games(commands.Cog):
                             timestamp=datetime.utcnow())
                         embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                         embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                        embed.add_field(name="You won:", value="**" + str(float(self.bet*0))+ "**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
-                        embed.add_field(name='Balance', value="**"+str(player_points)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote')
+                        embed.add_field(name="You won:", value="**" + str(float(self.bet*0))+ "**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                        embed.add_field(name='Balance', value="**"+str(player_points)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote')
                         
                         , inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
@@ -433,7 +429,7 @@ class Games(commands.Cog):
                 if interaction.custom_id=="double":
                     self.bet = self.bet*2
 
-                    self.db.transferPoints(ctx.guild.name,  ctx.author.id, self.bet, self.client.user.id)
+                    self.client.db.transferPoints(ctx.guild.name,  ctx.author.id, self.bet, self.client.user.id)
 
                     
                     if self.game.hit():
@@ -445,8 +441,8 @@ class Games(commands.Cog):
                             timestamp=datetime.utcnow())
                         embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                         embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                        embed.add_field(name="You won:", value="**"+str(float(self.bet*0))+"**"+self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
-                        embed.add_field(name='Balance', value="**"+str(player_points)+"**"+self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
+                        embed.add_field(name="You won:", value="**"+str(float(self.bet*0))+"**"+self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                        embed.add_field(name='Balance', value="**"+str(player_points)+"**"+self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)                     
 
                         for component in interaction.message.components:
@@ -463,27 +459,27 @@ class Games(commands.Cog):
                     mullti = self.game.stand()
                     if mullti==2:
 
-                        self.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet*2, ctx.author.id)
+                        self.client.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet*2, ctx.author.id)
 
                         embed = discord.Embed(title = f"BlackJack : {ctx.author.name} :white_check_mark:WON with {str(self.game.player_score)}",
                             color=discord.Color.green(),
                             timestamp=datetime.utcnow())
                         embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                         embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                        embed.add_field(name="You won:", value="**"+str(float(self.bet*2))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
-                        embed.add_field(name='Balance', value="**"+str(player_points+self.bet*2)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
+                        embed.add_field(name="You won:", value="**"+str(float(self.bet*2))+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                        embed.add_field(name='Balance', value="**"+str(player_points+self.bet*2)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
                     elif mullti==1: #draw
 
-                        self.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet, ctx.author.id)
+                        self.client.db.transferPoints(ctx.guild.name, self.client.user.id, self.bet, ctx.author.id)
 
                         embed = discord.Embed(title = f"BlackJack : {ctx.author.name} DRAW with {str(self.game.player_score)}",
                             color=discord.Color.gold(),
                             timestamp=datetime.utcnow())
                         embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                         embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                        embed.add_field(name="You won:", value="**"+str(float(self.bet))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
-                        embed.add_field(name='Balance', value="**"+str(player_points+self.bet)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote') , inline=True)
+                        embed.add_field(name="You won:", value="**"+str(float(self.bet))+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                        embed.add_field(name='Balance', value="**"+str(player_points+self.bet)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote') , inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)                       
                     else:    #lost
                         embed = discord.Embed(title = f"BlackJack : {ctx.author.name} :x:LOST with {str(self.game.player_score)}",
@@ -491,8 +487,8 @@ class Games(commands.Cog):
                             timestamp=datetime.utcnow())
                         embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
                         embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-                        embed.add_field(name="You won:", value="**"+str(float(self.bet*0))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
-                        embed.add_field(name='Balance', value="**"+str(player_points)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
+                        embed.add_field(name="You won:", value="**"+str(float(self.bet*0))+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+                        embed.add_field(name='Balance', value="**"+str(player_points)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
                         embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
     
 
@@ -512,7 +508,7 @@ class Games(commands.Cog):
             return
 
 
-        points = self.db.getPoints(ctx.guild.name, ctx.author.id)
+        points = self.client.db.getPoints(ctx.guild.name, ctx.author.id)
 
 
         if self.bet>points:
@@ -522,20 +518,20 @@ class Games(commands.Cog):
         self.game = games.BlackJack(bet, ctx.author)
 
 
-        self.db.transferPoints(ctx.guild.name,  ctx.author.id, self.bet, self.client.user.id)
+        self.client.db.transferPoints(ctx.guild.name,  ctx.author.id, self.bet, self.client.user.id)
 
         
         if self.game.play()==21:
 
-            self.db.transferPoints(ctx.guild.name, self.client.user.id, 2.2*self.bet, ctx.author.id)
+            self.client.db.transferPoints(ctx.guild.name, self.client.user.id, 2.2*self.bet, ctx.author.id)
 
             embed = discord.Embed(title = f"BlackJack: {ctx.author.name} :white_check_mark:WON with BLACK JACK",
                         color= discord.Color.green(),
                         timestamp=datetime.utcnow())
             embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
             embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-            embed.add_field(name="You won:", value="**"+str(float(self.bet*2.2))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
-            embed.add_field(name='Balance', value="**"+str(points+float(self.bet*2.2))+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
+            embed.add_field(name="You won:", value="**"+str(float(self.bet*2.2))+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+            embed.add_field(name='Balance', value="**"+str(points+float(self.bet*2.2))+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
             embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
             await ctx.message.reply(embed=embed)               
 
@@ -545,8 +541,8 @@ class Games(commands.Cog):
                     timestamp=datetime.utcnow())
             embed.add_field(name="Player Cards", value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.player])) + "**\nValue: **"+ str(self.game.player_score) +"**", inline=True)
             embed.add_field(name='Banker Cards', value="**"+ re.sub("', '|\['|\']", " ", str([x.detailed_info() for x in self.game.banker])) + "**\nValue: **"+ str(self.game.banker_score) +"**", inline=True)
-            embed.add_field(name='Your bet', value="**"+str(self.bet)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
-            embed.add_field(name='Balance', value="**"+str(points)+"**" + self.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
+            embed.add_field(name='Your bet', value="**"+str(self.bet)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=False)
+            embed.add_field(name='Balance', value="**"+str(points)+"**" + self.client.db.getGuildValue(ctx.guild.id, 'currency_emote'), inline=True)
             embed.set_footer(text=f'Requested by: {ctx.author.name}', icon_url=ctx.author.avatar_url)
             await ctx.message.reply(
                 embed=embed,            
