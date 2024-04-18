@@ -1,5 +1,5 @@
 DB_NAME: "alwaysondude"
-DB_USER: "tasosgrv"
-DB_PASS: "break4winds4."
+DB_USER: "YOUR-DB-USER"
+DB_PASS: "YOUR-PASS"
 DB_HOST: "localhost"
 DB_PORT: "5432"

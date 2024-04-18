@@ -2,5 +2,5 @@
 __pycache__
 cogs/__pycache__
 alwaysondude
-data/tables.sql
-data/dbparams.yaml
+Pipfile
+Pipfile.lock
